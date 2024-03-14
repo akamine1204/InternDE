@@ -1,0 +1,53 @@
+Throws trong java được sử dụng để KHAI BÁO 1 ngoại lệ. Nó thể hiện thông tin cho
+lập trình viên rằng có thể xả ra một ngoại lệ, vì vậy là tốt hơn cho các lập trình viên
+để cung cấp các mã xử lý ngoại lệ để duy trì luồng bình thường của chương trình.
+
+Ngoại lệ nào nên dược khai báo:
+chỉ ngoại lệ checked, bởi vì:
+- Ngoại lệ unchecked: nằm trong sự kiểm soát của bạn.
+- error: nằm ngoài sự kiểm soát.
+
+Lợi ích của từ khoá throws trong java:
+- ngoại lệ checked có thể được ném ra ngoài và được xử lý ở một hàm khác.
+- cung cấp thông tin cho caller của phương thức về các ngoại lệ.
+
+có 2 trường hợp:
+TH1: xử lý ngoại lệ với try/catch: (Trong TH bạn xử lý ngoại lệ, code sẽ được thực thi tốt
+cho dù ngoại lệ có xuất hiện trong chương trình hay không.)
+===================================================================
+import java.io.IOException;
+
+class M {
+    void method() throws IOException {
+        throw new IOException("Loi thiet bi");
+    }
+}
+
+public class TestThrows2 {
+    public static void main(String args[]) {
+        try {
+            M m = new M();
+            m.method();
+        } catch (Exception e) {
+            System.out.println("Ngoai le duoc xu ly");
+        }
+
+        System.out.println("Luong binh thuong...");
+    }
+}
+===================================================================
+output:
+Thiet bi dang hoat dong tot
+Luong binh thuong...
+
+
+
+sự khác nhau giữa throw và throws:
+throw/throws
+1. throw để ném ra 1 ngoại lệ rõ ràng/throws để khai báo một ngoại lệ
+2. checked không được truyền ra nếu chỉ sử dụng throw/checked được truyền ra ngay khi chỉ
+sử dụng throws
+3. sau throw là một instance./sau throw là một hoặc nhiều class
+4. throw được sử dụng trong phương thức/throws được khai báo sau dấu đóng ngoặc đơn của phương
+thức.
+5. không thể throw nhiều exception/có thể khao báo nhiều exceptions.

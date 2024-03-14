@@ -1,0 +1,99 @@
+Thread:
+    Có 2 cách để khởi tạo 1 thread:
+    - 1 là implements interface Runnable và override hàm run();
+    - 2 là extends class Thread cũng override hàm run();
+
+    Cách thực thi thread:
+    - đối với cách 1 thì cần khởi tạo 1 new Thread và truyền instance của class mà implement
+    Runnable vào constructor, ssu đó gọi method start của Thread đó.
+    - đối với cách 2 thì chỉ cần khởi tạo instance của subclass Thread và gọi method start
+    của instance đó.
+
+- Chu kì của 1 Thread:
+    New => Runnable => Running (=> Non-Runnable (blocked)) => terminated
+
+phép join():
+    trước khi sử dụng join, ví dụ đang có 3 luồng chạy song song với nhau, tuy nhiên khi 1
+    thread sử dụng join (trong hàm main) thì khi đấy luồng main phải dừng lại chờ cho
+    đến khi luồng sử dụng phép join thực hiện hết rồi luồng main mới được phép thực hiện tiếp tục việc
+    của mình.
+    với join(long miliseconds) thì không cần chờ đến khi luồng sử dụng phương thức này chết
+    mà chỉ cần chờ trong miliseconds.
+
+
+ví dụ về start 1 thread:
+==========================================================
+    class Multi extends Thread {
+        public void run() {
+            System.out.println("thread is running...");
+        }
+
+        public static void main(String args[]) {
+            Multi t1 = new Multi();
+            t1.start();
+        }
+    }
+==========================================================
+
+class Multi3 implements Runnable {
+    public void run() {
+        System.out.println("thread is running...");
+    }
+
+    public static void main(String args[]) {
+        Multi3 m1 = new Multi3();
+        Thread t1 = new Thread(m1);
+        t1.start();
+    }
+}
+==========================================================
+
+Luồng hiểm trong java:
+    - Luồng hiểm trong java (thread daemon) là một luồng cung cấp dịch vụ cho luồng người dùng,
+    thời gian sống của nó phụ thuộc vào các luồng người dùng. Tức là khi tất cả các luồng người
+    chết, jvm sẽ tự động chấm dứt luồng này.
+    đặc điểm:
+        - nó cung cấp dịch vụ cho các luồng người dùng.
+        - Thời gian sống của nó phụ thuộc vào các luồng người dùng.
+        - Nó là một luồng có mức ưu tiên thấp.
+    phương thức sử dụng:
+        - setDaemon(boolean): đặt 1 luồng là luồng hiểm
+        - isDaemon(): check xem luồng có phải luồng hiểm hay không?
+
+
+
+Thread pool trong java:
+- thread pool trong java đại diện cho 1 nhóm các luồng đang chờ đợi công việc và tái sử dụng
+nhiều lần. Trong trường hợp thread pool, một nhóm các thread có kích thước cố định được tạo
+ra. Một thread từ thread pool được kéo ra và được service provider phân công một công việc.
+Sau khi hoàn thành công việc đó, thread đó đc chứa trong thread pool 1 lần nữa.
+- Ưu điểm: hiệu năng tốt hơn: Tiết kiệm thời gian vì không cần phải tạo thread mới.
+theadpool trong java sử dụng ExecutorService và Executors.
+- Cách tạo 1 threadpool:
+    ExecutorService exs = Executors.newFixedThreadPool(int SoLuongLuong)
+    exs.execute(Runnable rnb)
+    - Sau khi sử dụng threadpool xong thì phải thực hiện method .shutdown();
+
+
+====================================================================================================================
+Callable/Future trong java:
+1. Callable: là 1 interface để định nghĩa đối tượng sẽ trả về sau khi xử lý xong tác vụ.
+Callable cũng giống như Runnable, ngoài trừ khác ở chỗ thay vì trả về void từ run() của Runnable
+thì call() method của Callable trả về đối tượng kiểu Future<T> hoặc throw exception
+
+    Runnable: public abstract void run() => kiểu trả về là void
+    Callable: <T>Future<T> submit(Callable<T> task) => kiểu trả về là Future<T>
+              <T>Future<T> submit(Runnable<T> task) => kiểu trả về là Future<T>
+
+2. Future: Dùng để lấy kết quả khi thực thi một Thread, có thể lấy Future khi submit một task
+vào ThreadPool. Task ở đây là một object implement Runnable hay Callable.
+    1 số method của Future:
+    - isDone(): kiểm tra task hoàn thành hay không?
+    - cancel()
+    - isCancelled(): kiểm tra task bị huỷ trước khi hoàn thành hay không?
+    - get(): lấy kết quả trả về 1 task.
+
+
+
+
+

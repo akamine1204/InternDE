@@ -1,0 +1,18 @@
+try-catch trong java:
+    try{
+    //code có thể ném ra ngoại lệ
+    } catch(Exception_class_name ref){
+    //code xử lý ngoại lệ
+    }
+
+try-finally trong java:
+    try{
+    //code có thể ném ra ngoại lệ
+    } finally {
+    //code trong khối này luôn được thực thi
+    }
+
+
+khối try: được sử dụng để chứa 1 đoạn code có thể xảy ra một ngoại lệ.
+          phải được khai báo trong phương thức.
+khối catch: được sử dụng để xử lý các exception. được sử dụng sau khối trytry

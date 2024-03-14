@@ -1,0 +1,14 @@
+ConcurrentHashMap
+- là 1 lớp trong java đc thiết kế để cung cấp 1 bản sao an toàn của HashMap có khả năng
+đồng bộ hoá để sử dụng trong môi trường đa luồng mà không cần phải sử dụng các cơ chế đồng bộ
+hoá bên ngoài như synchronized.
+- đặc điểm chính của ConcurrentHashMap là nó hỗ trợ cả đọc và ghi đồng thời từ nhiều luồng mà
+không làm gián đoạn hoặc gây xung đột. Điều này được đạt được bằng cách chia nhỏ Map thành
+các phần (segments), mỗi phần được quản lý bằng một khoá riêng biệt, giúp giảm thiểu sự cạnh
+tranh khi nhiều luồng truy cập đồng thời.
+- Map được chia nhỏ thành các phần và mỗi phần được quản lý bằng 1 khoá riêng biệt, default
+thường là 16 phần, mỗi phần là 1 bản HashMap riêng biệt, có các đặc điểm và tính năng giống
+như 1 HashMap thông thường giúp giảm thiểu sự cạnh tranh khi nhiều luồng truy cập 1 lúc,
+điều này cho phép các luồng thực hiện đọc và ghi đồng thời mà không cần phải chờ đợi lẫn
+nhau. Sau khi các luồng thực hiện việc đọc ghi trên hashMap thì nó sẽ thực hiện thao tác hợp
+nhất các phần với nhau để đồng bộ hoá dữ liệu trên chính ConcurrentHashMap.

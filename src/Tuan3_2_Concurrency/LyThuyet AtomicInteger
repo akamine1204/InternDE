@@ -1,0 +1,15 @@
+AtomicInteger: là 1 lớp trong Java thuộc package 'java.util.concurrent.atomic'
+
+- được thiết kế để cung cấp cách an toàn để thực hiện các phép toán trên số nguyên mà
+không cần phải sử dụng đồng bộ hoá bằng từ khoá 'synchronized'.
+- tránh việc đọc ghi dữ liệu số nguyên khi thực hiện tăng/giảm giá trị nguyên đồng thời
+cùng với các luồng khác đọc.
+- 1 số phương thức quan trọng:
+    - int get(): trả về giá trị hiện tại của AtomicInteger.
+    - void set(int newValue): gán 1 giá trị mới cho AtomicInteger.
+    - int getAndSet(int newValue): gán 1 giá trị mới và trả về giá trị cũ của biến.
+    - int IncrementAndGet(): tăng giá trị biến lên 1 và trả về newValue.
+    - int addAndGet(int delta): tăng giá trị thêm delta và trả về giá trị mới.
+
+
+    

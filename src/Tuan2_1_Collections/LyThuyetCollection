@@ -1,0 +1,49 @@
+- ArrayList:
+    lưu trữ dữ liệu ở 1 mảng resizeable. Khi 1 arrayList được tạo thì size=0,
+    nhưng khi thêm phần tử đầu tiên vào arrayList thì size=10. Trước khi mỗi lần thêm phần tử mới
+    vào arraylist sẽ được kiểm tra khả năng chứa, nếu lượng phần tử hiện tại đầy, thì 1 mảng mới
+    với size = n+n/2+1 được khởi tạo. (nếu capacity = 10 thì 1 arraylist size = 16 được khởi tạo.)
+    . Độ phức tạp:
+    + thêm phần tử: O(1)
+    + xoá phần tử: với phần tử cuối cùng trong arraylist thì O(1), các phần tử khác thì O(n)
+    ( tại khi xoá phần tử theo index, các phần tử sau phải dịch sang trái => O(n))
+      tìm kiếm phần tử: O(1) (find by index).
+      thêm phần tử vào arrayList:
+      + thêm vào cuối arraylist: sử dụng method add(E e), nếu arraylist đã đầy thì 1 arraylist mới được tạo và copy các phần tử cũ sang.
+
+
+
+- HashSet:
+    - HashSet kế thừa AbstractSet và implement Set interface. Nó tạo 1 collection mà sử dụng một hash table để lưu giữ
+    - Các điểm quan trọng về HashSet:
+        - chỉ chứa các phần tử là duy nhất (tính chất của set), không chấp nhận 2 phần tử trùng nhau.
+        - HashSet lưu trữ các phần tử bằng cách sử dụng một chế gọi là hashing
+        - HashSet không đảm bảo thứ tự được thêm vào.
+        - HashSet cho phép chứa phần tử null.
+    - Không thể sắp xếp HashSet theo thứ tự mong muốn vì đặc thù của cách lưu trữ.
+    - performance of hashSet: add/contains = O(1).
+
+
+- HashMap:
+    - là 1 class implements Map interface, nó dùng để lưu trữ dữ liệu dạng cặp <key,value>.
+    - 1 số đặc điểm của HashMap:
+        - Thời gian truy cập nhanh: O(1).
+        - Sử dụng thuật toán băm: dùng băm để ánh xạ khoá cho chỉ mục trong mảng. Điều này cho phép
+        map có thể được sử dụng để tìm kiếm nhanh trên chính nó.
+        - HashMap không cho phép các giá trị key trùng lặp, tuy nhiên value của chúng có thể trung lặp nhau
+        - Cho phép giá trị key null.
+
+ - Khái niệm hashCode() và equals() trong HashMap và HashSet:
+    - Do trong 2 ctdl trên đều sử dụng hashing cho việc lưu trữ dữ liệu, do đó đều sử dụng 2 phương thức
+    hashCode() và equals() để thực hiện việc so sánh.
+    - hashCode() sẽ thực hiện việc hashing 1 phần tử và lấy giá trị đó để thực hiện việc lưu trữ,
+    trong trường hợp tại vị trí lưu trữ đó đã chứa 1 phần tử (xảy ra đụng độ) thì khi đó equals sẽ
+    được sử dụng để thực hiện việc so sánh 2 phần tử đó xem có trùng nhau hay không? (So sánh giá trị
+    ban đầu chứ không so sánh giá trị sau khi hashCode). Nếu trùng thì loại bỏ phần tử mới, ngược lại
+    sẽ tìm vị trí phù hợp để lưu trữ.
+    - Trong trường hợp k override 2 phương thức trên phù hợp với loại đối tượng, khi đó hashCode mặc định
+    sẽ so sánh địa chỉ ô nhớ của 2 đối tượng đó, và equals sẽ thực hiện việc so sánh 2 đối tượng đó có trỏ
+    vào chung 1 ô nhớ hay không. Trong trường hợp xấu, các phần tử có giá trị giống nhau vẫn sẽ được lưu trữ
+    trong HashMap và HashSet, khi đó sẽ ảnh hưởng lớn đến CTDL.
+
+

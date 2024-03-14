@@ -1,0 +1,105 @@
+Lock:
+
+Lock là 1 cơ chế đồng bộ thread giống với synchronized block nhưng phức tạp hơn. Lock được
+tạo thành bằng việc sử dụng synchronized block nên không phải là chúng ta có thể hoàn toàn
+bỏ keyword đó đi.
+
+- Lock cơ bản:
+    - implementation cơ bản của class Lock:
+        ======================================================
+        public class Lock{
+
+          private boolean isLocked = false;
+
+          public synchronized void lock()
+          throws InterruptedException{
+            while(isLocked){
+              wait();
+            }
+            isLocked = true;
+          }
+
+          public synchronized void unlock(){
+            isLocked = false;
+            notify();
+          }
+        }
+        ======================================================
+    - ví dụ về lock:
+        public class Counter{
+
+          private Lock lock = new Lock();
+          private int count = 0;
+
+          public int inc(){
+            lock.lock();
+            int newCount = ++count;
+            lock.unlock();
+            return newCount;
+          }
+        }
+
+    block cần được synchronized sẽ được đặt nằm giữa trong lock() và unlock(), chúng đảm bảo
+    chỉ 1 thread có thể được truy xuất và trả về ++count ở 1 thời điểm. Hàm lock() khoá lại
+    instance Lock nên tất cả các thread gọi đến lock() sẽ bị chặn cho đến khi unlock() được
+    gọi đến.
+
+
+- Lock reentrance:
+    - Lớp ReentrantLock implement interface Lock và cung cấp tính đồng bộ cho các hàm truy
+    cập tài nguyên chung. Những dòng code điều khiển tài nguyên chung chủ yếu chỉ thực hiện
+    các thao tác lock và unlock nhằm cung cấp tài nguyên chung cho 1 thread và khoá nó, ngăn
+    không cho các thread khác truy cập.
+    - Reentrant không giới hạn số lần truy cập tài nguyên của 1 thread. Khi 1 thread truy cập
+    lần đầu vào tài nguyên, nó được gán 1 biến đếm giá trị 1. Trước khi giải phóng tài nguyên,
+    nó có thể tái truy cập, và mỗi lần như thế thì biến đếm tăng lên 1. Với mỗi yêu cầu unlock
+    thì biến đếm sẽ giảm 1, và khi biến đếm = 0 thì tài nguyên được giải phóng.
+    - ReentrantLock có 1 cơ chế phân chia tài nguyên khá công bằng, cụ thể là sau khi tài
+    nguyên được giải phóng nó sẽ được cung cấp cho thread có thời gian chờ lâu nhất.
+
+    - 1 số hàm thông dụng:
+        - rl.tryLock(): thử yêu cầu truy cập tài nguyên, nếu available thì sẽ lập tức được
+        truy cập, biến đếm =1. Nếu thread đang chiếm giữ tài nguyên, biến đếm tăng 1.
+        - rl.lock(): tăng biến đếm lên 1 nếu đang chiếm giữ tài nguyên, ngược lại yêu cầu
+        truy cập tài nguyên.
+        - rl.unlock(): giảm biến đếm đi 1.
+
+
+
+
+- ReadWriteLock:
+    - Là 1 cơ chế đồng bộ hoá được sử dụng để quản lý truy cập đồng thời vào một tài nguyên
+    bởi nhiều luồng. Khác với ReentrantLock thì ReadWriteLock chia ra thành 2 loại khoá gồm
+    1 loại khoá đọc (read lock) và 1 loại khoá ghi (write lock).
+    - Loại khoá này hữu ích khi bạn có 1 tài nguyên có thể được đọc bởi nhiều luồng đồng thời
+    mà không cần phải lo lắng về sự cạnh tranh hoặc xung đột. Tuy nhiên, khi 1 luồng muốn
+    thay đổi tài nguyên, nó phải giữ 1 khoá ghi độc quyền, không có phép bất kì luồng đọc hoặc
+    ghi khác truy cập vào tài nguyên trong khi khoá ghi đang giữ.
+    - 1 số hàm:
+        - readLock(): trả về 1 Lock cho phép nhiều luồng đọc truy cập tài nguyên đồng thời.
+        - writeLock(): Trả về 1 Lock cho phép một luồng viết (hoặc nhiều luồng đọc) truy cập
+        tài nguyên 1 cách độc quyền.
+    - ví dụ về ReadWriteLock:
+        public class SharedResource {
+            private int data = 0;
+            private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+            public int readData() {
+                lock.readLock().lock();
+                try {
+                    return data;
+                } finally {
+                    lock.readLock().unlock();
+                }
+            }
+
+            public void writeData(int newData) {
+                lock.writeLock().lock();
+                try {
+                    data = newData;
+                } finally {
+                    lock.writeLock().unlock();
+                }
+            }
+        }
+

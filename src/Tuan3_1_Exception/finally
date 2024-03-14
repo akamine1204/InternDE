@@ -1,0 +1,20 @@
+Khối lệnh finally trong java được sử dụng để thực thi các lệnh quan trọng vd như
+đóng kết nối, đóng cả stream,..
+finally trong java LUÔN ĐƯỢC THỰC THI cho dù có ngoại lệ xảy ra hay không hoặc gặp return
+trong try.
+
+1 số trường hợp khác nhau khi sử dụng finally:
+TH1: sử dụng khối lệnh finally nơi ngoại lệ k xảy ra
+TH2: sử dụng khối lệnh finally nơi ngoại lệ xảy ra nhưng không xử lý. (Do exception k được
+xử lý nên những câu lệnh ở phía sau exception sẽ k được thực thi).
+TH3: sử dụng khối lệnh finally nơi ngoại lệ xay ra và được xử lý.
+TH4: sử dụng khối lệnh finally trong trường hợp trong khối try có lệnh return
+(kể cả khi có thực thi return thì khối lệnh finally vẫn luôn được thực thi trước khi chương
+trình kết thúc).
+
+note:
+- đối với mỗi khối try, có thể có không hoặc nhiều khối catch, nhưng chỉ có 1 khối finally.
+- Khối finally sẽ không được thực thi nếu chương trình bị thoát (bằng cách gọi System.exit())
+hoặc xảy ra một lỗi không thể tránh khiến chương trình bị chết.
+
+

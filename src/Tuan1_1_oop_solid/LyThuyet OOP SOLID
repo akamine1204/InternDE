@@ -1,0 +1,23 @@
+4 Tính chất của OOP:
+- Trừu tượng hoá: Ẩn các chi tiết phức tạp, chỉ hiện thị cấc chức năng đặc trưng và cần thiết
+- Đóng gói: Dữ liệu và hành vi của đối tượng được đóng gói trong các lớp, và chỉ có thể truy câppj thông qua các phương thức công khai
+- Kế thừa: Các lớp có thể kế thừa các thuộc tính và phương thức từ các lớp cha
+- Đa hình: các đối tượng của các lớp con có thể được xử lý như các đối tượng của lớp cha, nhg có thể thực hiện các hành vi khác nhau.
+
+
+
+5 tính chất của SOLID:
+  -  Single Responsibility (Đơn nhiệm):
+       - mỗi class không nên có nhiều hơn 1 trách nhiệm, tránh việc phải chỉnh sửa class nhiều lần, dễ dàng kiểm soát lỗi do đâu vì trách nhiệm của 1 class là rõ ràng 
+  - Open/closed principle (Nguyên tắc Mở/đóng):
+       - Các đối tượng hoặc thực thể nên “mở cửa” với mở rộng nhưng “đóng cửa” với sửa đổi => có thể thêm chức năng mới mà không cần đụng vào code hiện có của class.
+       - Có thể tuân thủ nguyên tắc này bằng cách tạo ra class mới kế thừa class hiện tại để có thể dễ dàng update những thứ cần thiết mà k ảnh hưởng đến class đã có. 
+  - Liskov Subtitution principle (nguyên tắc Thay thế Liskov):
+       -  Các class con hoặc class dẫn xuất phải có khả năng thay thế cho class cơ sở hoặc class cha mà k làm ảnh hưởng đến ứng dụng
+       - Nói 1 cách dễ hiểu thì mọi hành động của class con phải tuân thủ và được thực thi đúng như trong class cha.
+            - ví dụ có class chữ nhật có method tính diện tích bằng cách lấy chiều dài x rộng, khi tạo 1 class hình vuông kế thừa hcn đó thì sẽ k tuân theo method tính diện tích đó nữa => giải pháp: tạo 1 class shape sau đó tạo class hình vuông và hình chữ nhật kế thừa chúng. 
+  - Interface Segregation principle (Nguyên tắc Phân tách Interface):
+       - ví dụ, trong giao diện của bạn sẽ liệt kê những task mà bạn cần làm khi sử dụng giao diện này, tuy nhiên bạn k thực thi hết toàn bộ method trong giao diện này, khi đó giao diện này sẽ trở nên khó thực thi và buộc phải làm hết. Khi đó, để đảm bảo thoả mãn nguyên tắc này, chúng ta sẽ tách interface đó thành các interface để đảm bảo những method trong mỗi interface tách ra đó sẽ được sử dụng 1 cách triệt để.
+       - ví dụ như interface TigerKeeper sẽ có 3 nhiệm vụ cần thực thi là washTheTiger(), feedTheTiger(), petTheTiger() tuy nhiên kphai ai cũng có thể thực thi petTheTiger(), khi đó ta sẽ tách interface đó thành 3 interface riêng lẻ. 
+  - Dependency Inversion Principle (Nguyên tắc đảo ngược phụ thuộc):
+       - mọi lớp khi khởi tạo cần phải phụ thuộc vào tính trừu tượng hoá của nó chứ kphai phụ thuộc ngược lại. Mọi class con phải phụ thuộc

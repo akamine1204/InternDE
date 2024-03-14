@@ -1,0 +1,47 @@
+Throw trong java được sử dụng để ném ra một ngoại lệ cụ thể.
+- Có thể ném checked hoặc unchecked trong java bằng từ khoá throw, từ khoá này chủ yếu được sử
+dụng để ném ngoại lệ tuỳ chỉnh.
+
+vd1: throw ra ngoại lệ nhưng không xử lý
+===========================================================
+public class TestThrow1 {
+    static void validate(int age) {
+        if (age < 18)
+            throw new ArithmeticException("not valid");
+        else
+            System.out.println("welcome");
+    }
+
+    public static void main(String args[]) {
+        validate(13);
+        System.out.println("rest of the code...");
+    }
+}
+===========================================================
+output:
+Exception in thread "main" java.lang.ArithmeticException: not valid
+
+
+vd2: throw ra ngoại lệ nhưng có xử lý:
+============================================================
+public class TestThrow2 {
+    static void validate(int age) {
+        try {
+            if (age < 18)
+                throw new ArithmeticException("not valid");
+            else
+                System.out.println("welcome");
+        } catch (ArithmeticException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public static void main(String args[]) {
+        validate(13);
+        System.out.println("rest of the code...");
+    }
+}
+============================================================
+output:
+not valid
+rest of the code...

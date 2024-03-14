@@ -1,0 +1,71 @@
+Exception trong Java
+
+- Xử lý ngoại lệ trong java là 1 cơ chế mạnh mẽ để xử lý các lỗi runtime để có tểh duy trì
+luồng bình thường của ứng dụng.
+
+- exception handling (xử lý ngoại lệ) là một cơ chế xử lý các lỗi runtime như ClassNoteFound,
+IO, SQL, Remote, vv..
+
+- Lợi thế của Exception Handling trong java:
+    lợi thế cốt lõi của việc xử lý ngoại lệ là duy trì luồng bình thường của ứng dụng. Ngoại lệ
+    thường làm gián đoạn luồng bình thường của ứng dụng đó là lý do tại sao chúng ta xử lý ngoại lệ.
+    Khi đó những task nằm sau task bị dính exception vẫn sẽ được thực hiện khi chúng ta xử lý.
+    (Nếu không thì các task sau sẽ bị trì hoãn và k được thực thi)
+
+
+
+- Các kiểu của ngoại lệ, có 2 ngoại lệ chính là checked và unchecked.
+    - Checked Exception:
+        Các lớp extends từ lớp Throwable ngoại trừ RuntimeException và Error được gọi là
+        checked exception, ví dụ như Exception, SQLException vv. Các checked exception được kiểm tra
+        tại compile-time.
+
+
+    - Unchecked Exception:
+       Các lớp được extends từ RuntimeException được gọi là unchecked exception,
+       ví dụ ArithmeticException, NullPointerException, ArrayIndexOfBoundsException,.. Các ngoại
+       lệ unchecked không được kiểm tra tại compile-time mà chúng được kiểm tra tại runtime.
+
+    - Error: Không thể cứu chữa được, vd: OutOfMemoryError, VỉrtualMachineError, AssertionError,..
+
+
+
+
+- Các kịch bản phổ biến nơi ngoại lệ có thể xảy ra:
+    1. ArithmeticException xảy ra: Khi thực hiện việc chia số nào cho 0.
+    2. NullPointerException xảy ra: Thực hiện bất kì phương thức nào với một biến null sẽ
+    xảy ra ngoại lệ NullPointerException. Ví dụ: String s=null; s.length
+    3. NumberFormatException xảy ra: sai định dạng của bất kì giá trị nào, 1 biến
+    String có giá trị là các kí tự, chuyển đổi biến này thành số sẽ xảy ra NumberFormatException
+    4. ArrayIndexOutOfBoundsException xảy ra: Nếu chèn bất kì giá trị nào vào index sai.
+
+
+ví dụ về 2 loại exception(checked và unchecked) và cách fix nó.
+- checked exception: là các loại exception mà java yêu cầu phải xử lý, bằng cách sử dụng khối
+try-catch hoặc khai báo nó trong phần khai báo của phương thức bằng từ khoá throws.
+- Lấy ví dụ về 1 loại checked exception cụ thể ở đây là FileNoteFoundException:
+    public static void main(String args[]){
+        try{
+            FileInputStream fis = new FileInputStream("test.txt");
+            //thực hiện các thao tác với fileInputStream
+            }
+        catch(FileNotFoundException e){
+            //xử lý ngoại lệ
+            e.printStackTrace();
+        }
+    }
+
+
+
+- Unchecked Exception: là các loại exception mà java không yêu cầu bạn phải bắt nó hoặc khai báo nó
+trong phần khai báo của phương thức.
+- Lấy ví dụ về 1 loại unchecked exception cụ thể ở đây là ArithmeticException:
+    public static void main(String args[]){
+        try{
+            int data = 25/0;
+        }
+        catch (ArithmeticException e){
+            //xử lý ngoại lệ
+            e.printStackTrace();
+        }
+    }

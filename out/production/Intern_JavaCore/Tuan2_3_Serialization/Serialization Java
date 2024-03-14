@@ -1,0 +1,101 @@
+serialization là 1 khái niệm giúp chúng ta chuyển đổi trạng thái của 1 java
+object thành một định dạng nào đó để java object này có thể được lưu trữ ở đâu đó và sau đó,
+nó được sử dụng bởi 1 tiến trình khác.
+
+Thông thường, java object sẽ được đổi qua byte streams và chúng ta có thể lưu byte stream này
+trong bộ nhớ, trên ổ đĩa, truyền qua mạng đến 1 server nào đó hoặc cũng có thể lưu chúng vào
+database.
+
+Khi 1 tiến trình khác sử dụng 1 java object đã được serialization, nó sẽ chuyển đổi định dạng
+đã serialization về trạng thái của java object ban đầu. khi đấy, tiến trình đó có thể sử dụng
+lại java object của chúng ta.
+
+Khi muốn serialize 1 đối tượng, đầu tiên chúng ta phải implement Serializable interface. Khi
+serializable, tất cả các thuộc tính sẽ được streaming, nếu không muốn serializable 1 thuộc
+tính nào đó, nó phải được dùng từ khoá transient.
+
+ví dụ:
+- Serializing một Object:
+====================================================================
+package vuta.serialization.example;
+
+import java.io.*;
+
+public class SerializeDemo {
+
+	public static void main(String[] args) {
+		Employee e = new Employee();
+		e.name = "Tran Anh Vu";
+		e.address = "138 Le Duan - P.Nguyen Du - Q.Hai Ba Trung - Ha Noi";
+		e.SSN = 11122333;
+		e.number = 101;
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream("C:\\employee.data");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(e);
+			out.close();
+			fileOut.close();
+			System.out.printf("Serialized data is saved in C:\\employee.data");
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+}
+====================================================================
+
+trong ví dụ code trên, chúng ta muốn truyền 1 object Employee vào trong 1 file để lữu trữ nó,
+trước tiên chúng ta cần tạo 1 luồng đầu ra liên kết với file đó => sử dụng FileOutputStream
+để tạo luồng liên kết với tệp C:\\employee.data. Nếu tệp không tồn tài trong máy, hệ thống
+sẽ tự tạo tệp và làm việc trên nó. Sau đó sử dụng ObjectOutputStream để truyền đối tượng
+lên tệp để thực hiện lưu trữ (sử dụng method writeObject(e) để truyền dữ liệu đối tượng e
+lên tệp).
+
+
+
+- Deserializing một Object:
+====================================================================
+package vuta.serialization.example;
+
+import java.io.*;
+
+public class DeserializeDemo {
+
+	public static void main(String[] args) {
+		Employee e = null;
+		try {
+			FileInputStream fileIn = new FileInputStream("C:\\employee.data");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			e = (Employee) in.readObject();
+			in.close();
+			fileIn.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+			return;
+		} catch (ClassNotFoundException c) {
+			System.out.println("Employee class not found");
+			c.printStackTrace();
+			return;
+		}
+
+		System.out.println("Deserialized Employee...");
+		System.out.println("Name: " + e.name);
+		System.out.println("Address: " + e.address);
+		System.out.println("SSN: " + e.SSN);
+		System.out.println("Number: " + e.number);
+	}
+}
+====================================================================
+Tương tự như serializing thì deserializing thực hiện ngược lại, tương tự, khởi tạo FileInputStream
+và ObjectInputStream để thực hiện việc tái tạo lại đối tượng được lưu trữ (cần truyền đúng file
+lưu trữ dữ liệu mà mình muốn phục hồi). Sử dụng phương thức readObject() để tái tạo lại object
+được lưu trữ, lưu ý cần phải ép kiểu về kiểu của đối tượng.
+
+
+
+một vài điểm cần lưu ý:
+1. Nếu superclass là serializable thì các lớp con của nó sẽ tự động được Serializable.
+2. khi bạn serialize bất kỳ object nào mà nó có chứa tham chiếu đến object khác thì Java
+serialization sẽ serialize luôn cả object đó (nếu object được tham chiếu không implement
+the java.ou.Serializable interface thì java.io.NotSerrializableException sẽ xảy ra.
+3. Bạn không thể serialize các biến static.

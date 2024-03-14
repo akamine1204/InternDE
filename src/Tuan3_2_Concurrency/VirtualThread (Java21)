@@ -1,0 +1,36 @@
+VirtualThread
+
+- 1 vài hạn chế của lập trình đa luồng truyền thống trong java:
+    - Hiệu năng: khi số lượng luồng tăng lên, hiệu năng của ứng dụng không tăng tuyến tính
+     vì các luồng phải chia sẻ tài nguyên phần cứng, đồng thời việc quản lý và lập lịch các
+     luồng cũng gây ra chi phí thời gian CPU.
+    - Khả năng mở rộng: Trong các ứng dụng phức tạp, việc quản lý số lượng lớn luồng gây ra
+    khó khăn trong việc đảm bảo khả năng mở rông. Các vấn đề đồng bộ hoá, tài nguyên hạn chế và
+    deadlock có thể xảy ra, khó phát triển và duy trì.
+    - Độ phức tạp của mã nguồn.
+
+
+ => Giải pháp: Project Loom ra đời
+
+ - Project Loom giới thiệu một số cải tiến và cấu trúc mới để giúp đơn giản hoá việc lập trình
+ đa luồng, thành phần chính của Project Loom bao gồm Virtual Threads (fiber) và Continuations.
+
+
+ VirtualThread:
+    - Còn được gọi là Fibers, là 1 khía nhiệm mới giúp giảm độ phức tạp và tăng hiệu năng của lập
+    trình đa luồng. Virtual Threads đc quản lý bởi JVM thay vì hệ điều hành, giúp giảm thiểu
+    chi phí liên quan đến việc tạo, lập lịch và các chuyển đổi giữa các luồng.
+    - Ưu điểm quan trọng của Virtual Threads là khả năng mở rộng. Vì chi phí quản lý luồng giảm đáng kể,
+    ứng dụng có thể tạo và quản lý rất nhiều Virtual Threads mà không làm suy giảm hiệu năng.
+    Điều này giúp tận dụng tối đa nguồn lực phần cứng và cải thiện khả năng mở rộng của ứng dụng.
+
+
+    - Trước đây, thread trong java tương đương với thread của OS theo tỉ lệ 1:1 => càng nhiều thread
+    hơn, dẫn đến memory tăng theo. Việc này tạo ra áp lực nên CPU do nhu cầu "switch context", thêm nữa
+    quản lý threads rất vất vả dẫn đến việc sử dụng chúng không hiệu quả.
+    - Với virtual thread thì khác, java & thread os sẽ theo tỉ lệ n:1. Chi phí khởi tạo và tài nguyên
+    cần thiết của 1 luồng ảo ít hơn so với thread os nhiều và được quản lý bởi JDK.
+
+
+    - Cách để tạo 1 virtual thread:
+        - Thread thread = Thread.ofVirtual().start(() -> ....executed code....);

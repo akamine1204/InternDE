@@ -1,0 +1,17 @@
+1. Phương thức đồng bộ trong java:
+   - Synchronization trong java là khả năng kiểm soát truy cập của nhiều luồng đến bất kì nguồn
+   tài nguyên chia sẻ (Shared resource)
+   - vd có nhiều luồng muốn truy cập cùng một biến cùng một thời điểm, một luồng muốn đọc,trong
+   khi luồng khác cố gắng thay đổi dữ liệu dẫn đến dữ liệu bị sai lệch. Trong trường hợp này
+   java synchronization là lựa chọn tốt khi chúng ta muốn cho phép chỉ một luồng được truy cập
+   vào tài nguyên chia sẻ đó.
+   - khai báo phương thức với synchronized => phương thức đồng bộ.
+   - Phương thức đồng bộ được sử dụng để khoá một đối tượng cho bất kỳ tài nguyên được chia sẻ.
+   - Khi một luồng gọi một phương thức đồng bộ, nó sẽ tự động khoá cho đối tượng đó và giải phóng
+   nó khi luồng hoàn thành nhiệm vụ.
+
+Nhược điểm của synchronized:
+    - các khối đồng bộ (có thể hiểu như nhóm các thread cùng chờ đợi 1 tài nguyên) không
+    có cơ chế hàng đợi, sau khi 1 thread thoát khỏi khối, bất kì 1 thread nào khác cũng
+    có thể truy cập -> có thể dẫn đến tình trạng "đói tài nguyên" cho các thread khác
+    trong thời gian dài. => ReentrantLock cung cấp tính năng đồng bộ tốt hơn nhiều
