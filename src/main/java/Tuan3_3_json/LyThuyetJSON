@@ -1,0 +1,44 @@
+JSON là một tiêu chuẩn mở để trao đổi dữ liệu trên web. Nó hỗ trợ các cấu trúc dữ liệu
+như đối tượng và mảng. Vì vậy, khá dễ dàng để viết và đọc dữ liệu từ JSON.
+
+JSON là:
+    - JSON viết tắt của javascript Object Notation
+    - JSON là một định dạng trao đổi dữ liệu chuẩn mở.
+    - JSON nhẹ và tự mô tả.
+    - JSON có nguồn gốc từ JavaScript
+    - JSON rất dễ đọc và viết.
+    - JSON là ngôn ngữ độc lập.
+    - JSON hỗ trợ các cấu trúc dữ liệu như mảng và đối tượng
+
+    JSON được sử dụng để trao đổi dữ liệu:
+        - JSON là 1 chuỗi văn bản và chúng ta có thể chuyển đổi bất kì đối tượng nào thành
+        JSON và gửi JSON tới máy chủ.
+
+
+    Tại sao nên sử dụng JSON:
+        -Vì định dạng JSON chỉ là văn bản, nó có thể dễ dàng được gửi đến và từ một máy chủ,
+        và được sử dụng như một định dạng dữ liệu bởi bất kỳ ngôn ngữ lập trình nào.
+        - Vì vậy, nếu bạn nhận dữ liệu từ máy chủ, ở định dạng JSON, bạn có thể sử dụng nó
+        như bất kì đối tượng JavaScript nào khác.
+
+
+    Các quy tắc cú pháp JSON:
+        - Dữ liệu nằm trong cặp tên/giá trị.
+        - Dữ liệu được phân tách bằng ',' (dấu phẩy)
+        - dấu ngoặc nhọn lưu trữ các đối tượng và mỗi tên được theo sau bởi ':' (dấu hai chấm)
+        - Dấu ngoặc vuông lưu trữ mảng và giá trị được phân tách bằng dấu phẩy.
+
+
+    Kiểu dữ liệu trong JSON:
+        - Number: integer, phân số (.3,.9), số mũ
+        - String:
+        - Boolean: true/false
+        - Array
+        - Value
+        - Object
+        - Whitespace
+        - null
+
+
+   Đối tượng JSON:
+        -
