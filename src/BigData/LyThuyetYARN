@@ -1,0 +1,71 @@
+1. Kiến trúc YARN (yet another resource manager)
+- coi như là os của 1 cluster (tập hợp các máy tính được kết nối với nhau).
+- có 2 chức năng cơ bản là quản lý tài nguyên và theo dõi, lập lịch công việc. (tương ứng là ResourceManager
+và ApplicationMaster)
+- Các thành phần chính của YARN bao gồm ResourceManager, NodeManager và ApplicationMaster
+
+
+
+. ResourceManager:
+    - ResourceManager có nhiệm vụ quản lý toàn bộ tài nguyên trong cụm, nó cung cấp tài nguyên là core,
+    ram cho ứng dụng cần dùng, quản lỹ các NodeManager.
+    - Gồm 2 thành phần chính là Scheduler và ApplicationManager.
+    - Scheduler: có nhiệm vụ cung cấp tài nguyên cho các ứng dụng sử dụng, k có nhiệm vụ quản lý hay theo dõi
+    tình trạng của ứng dụng, hoặc như restart các task bị fail.
+    - ApplicationMaster: nhận các job từ client, cấp phát tài nguyên để start ApplicationMaster cho từng ứng
+    dụng, đồng thời cung cấp dịch vụ restart Application trong trường hợp lỗi.
+
+. NodeManager được cài trên 1 node có nhiệm vụ quản lý tài nguyên (RAM, core...) và job trên node đó.
+NodeManager thường xuyên gửi heartBeat đến RM để thông báo tình trạng, mục đích chính của NM là quản lý
+các container mà RM giao cho nó, kill các container này nếu RM yêu cầu.
+
+.ApplicationMaster là 1 container được khởi tạo bởi RM, tương ứng với mỗi job submit lên RM là 1 ApplicationMaster.
+AM có nhiệm vụ điều phối các hoạt động của 1 job trong cụm, xin cấp phát tài nguyên từ RM và kết nối NM để quản lý
+các container.
+
+
+Hoạt động:
+    - NodeManager bao gồm Container và AppMaster.
+    - các NM gửi node status đến RM.
+    - các AM gửi yêu cầu cấp phát tài nguyên đến RM (resource request)
+    - các container tập hợp các tài nguyên vật lý như core, ram sẽ gửi jobStatus đến các AM liên quan.
+    - Các client gửi các job tới RM bởi job submission.
+
+
+
+2. Application workflow trong Hadoop YARN.
+    - gồm 3 bước chính:
+        - client submit app tới YARN.
+        - YARN khởi tạo AM tương ứng với chương trình đó.
+        - AM quản lý thực thi của chương trình trên các containers.
+
+    Chi tiết các bước như sau:
+        - client submit job đến RM, tài nguyên cần thiết để khởi tạo AM.
+        - RM cấp phát tài nguyên và start AM.
+        - AM đăng kí với RM cho phép giao tiếp trực tiếp đến AM.
+        - AM sau đó request tài nguyên container từ RM.
+        - Xin thành công tài nguyên, AM cung cấp NM khởi tạo các container trên NM, container giao tiếp trực
+        tiếp với AM.
+        - các container báo cáo tiến độ cho AM.
+        - Khi chương trình hoàn tất, AP ngắt kết nối với RM và off các containers.
+
+
+Horizontal vs Vertical Scaling:
+    - Horizontal scaling được hiểu như là adding thêm nhiều máy vào cluster
+    - Vertical Scaling được hiệu là adding thêm tài nguyên như CPU, RAM vào những máy trong cụm.
+
+
+
+
+trong Apache YARN, có 3 cơ chế chính để lập lịch cho việc quản lý tài nguyên và thực thi công việc
+trên cụm had, các cơ chế này là:
+    - FIFO scheduler: không phù hợp cho cụm sử dụng chung.
+    - Capacity Scheduler: Chia tài nguyên thành nhiều queue chạy đồng thời với nhau, với min và max
+    tương ứng với từng queue và thực thi các job trên các queue này. Nếu 1 job thực hiện trên 1 queue
+    mà các queue khác đang rảnh thì sẽ thực hiện việc up to max để sử dụng tối đa sức mạnh trên queue đó.
+    - Fair Scheduler: sẽ không phân chia tài nguyên ngay từ đầu nếu không cần thiết.
+    ví dụ: khi có 1 job được submit thì job đó sẽ được sử dụng toàn bộ tài nguyên, khi có job 2 submit lên
+    thì hệ thống sẽ chờ 1 vài container của job 1 hoàn thành xong và trả lại để job 2 thực thi cho đến khi
+    ổn định thì 2 queue sẽ sử dụng lượng tài nguyên như nhau 50:50, và tương tự đối với nhiều job được submit.
+    Mỗi queue sẽ có weight riêng và có thể set từ ban đầu, nó được chia theo tỉ lệ (ví dụ như 2:3) chứ không chia
+    theo phần trăm tài nguyên sử dụng.

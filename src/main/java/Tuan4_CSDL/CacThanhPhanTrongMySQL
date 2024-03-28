@@ -1,0 +1,69 @@
+Trình bày chi tiết về các thành phần liên quan (vật lý - parser, optimizer, các loại storage
+engine, ...)
+    1. Parser (Bộ phân tích):
+        - là thành phần đầu tiên trong quá trình xử lý truy vấn SQL.
+        - Nhiệm vụ của Parser là phân tích cú pháp của truy vấn và kiểm tra tính hợp lệ của nó.
+        - Parser chia truy vấn thành các phần như câu lệnh, biểu thức điều kiện, danh sách cột,
+        bảng và các phần tử khác.
+
+    2. Optimizer (Bộ tối ưu hoá):
+        - là thành phần quan trọng trong MySQL, nó đảm nhận việc tối ưu hoá kế hoạch thực thi của
+        truy vấn.
+        - Optimizer phân tích các kế hoạch thực thi khác nhau và chọn ra kế hoạch tốt nhất dựa
+        trên các tiêu chí như hiệu suất và tài nguyên hệ thống.
+        - Các kế hoạch thực thi bao gồm việc chọn loại kết nối, thứ tự thực hiện các phép toán và
+        sử dụng các chỉ mục để tăng tốc độ truy vấn
+
+    3. Storage Engine (Bộ lưu trữ):
+        - Storage Engine là thành phần quản lý cách dữ liệu được lưu trữ và truy xuất từ csdl.
+        - MySQL hỗ trợ nhiều loại Storage Engine khác nhau như MyISAM, InnoDB, Memory (HEAP),
+        và nhiều loại khác.
+        - Mỗi Storage Engine có các đặc điểm và tính năng riêng, và được lựa chọn dựa trên yêu cầu
+        cụ thể của ứng dụng và tình huống sử dụng.
+
+    4. Query Cache (Bộ nhớ cache truy vấn):
+        - là 1 tính năng trong MySQL cho phép lưu trữ kết quả của các truy vấn đã được thựuc thi
+        trong bộ nhớ.
+        - Khi truy vấn được gửi tới MySQL, nếu kết quả được được lưu trữ trong cache và truý vấn
+        mới giống hệt truy vấn trước đó, MySQL sẽ trả về kết quả từ cache mà không cần thực thi truy
+        vấn lại.
+        - Tính năng này giúp cải thiện hiệu suất cho các truy vấn được thực hiện thường xuyên và truy
+        vấn với dữ liệu không thay đổi nhiều.
+
+    5. Replication (Sao chép):
+        - Replication là tính năng cho phép sao chép và đồng bộ dữ liệu giữa các máy chủ MySQL khác
+         nhau.
+        - Trong một môi trường sao chép, có ít nhất hai máy chủ MySQL: máy chủ gốc (master) và các
+        máy chủ sao chép (slave).
+        - Khi dữ liệu được cập nhật trên máy chủ gốc, các thay đổi này sẽ được sao chép sang các máy
+         chủ sao chép, đảm bảo sự nhất quán giữa các bản sao của cơ sở dữ liệu.
+
+
+
+    1 số loại storage engine phổ biến:
+        - InnoDB:
+            - là storage engine mặc định từ phiên bản MySQL 5.5 trở đi.
+            - Hỗ trợ các tính năng như transaction, locking và ACID.
+            - sử dụng BẢNG và INDEX có cấu trúc cây B+ để tối ưu hoá hiệu suất truy vấn và cung
+            cấp tính toàn vẹn dữ liệu.
+            - Thích hợp cho các ứng dụng có yêu cầu cao về tính nhất quán và hiệu suất.
+
+        - MyISAM:
+            - là 1 Storage Engine cũ, được sử dụng phổ biến trước khi InnoDB trở thành Storage Engine
+            mặc định.
+            - Hỗ trợ các tính năng như transaction, locking và ACID.
+            - Sử dụng bảng và index có cấu trúc cây B+.
+            - Thích hợp cho các ứng dụng đọc nhiều so với việc cập nhập dữ liệu
+
+        - Memory:
+            - lưu trữ dữ liệu hoàn toàn trong bộ nhớ RAM, k lưu trữ trên đĩa.
+            - dữ liệu trong memory engine không bền vứng và sẽ mất khi MySQL restart.
+            - thích hợp cho các ứng dụng cần truy cập dữ liệu nhanh và có thể chấp nhận mất mát
+            dữ liệu.
+
+        - NDB:
+            - NDB là 1 SE phân tán, cho phép lưu trữ và quản lý dữ liệu trên nhiều máy chủ.
+            - Hỗ trợ tính toànvenj và sẵn sàng cao bằng cách sao lưu dữ liệu trên nhiều máy chủ.
+            - Thích hợp cho các hệ thống có yêu cầu cao về sẵn sàng và khả năng mở rộng.
+
+

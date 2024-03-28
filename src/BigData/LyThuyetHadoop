@@ -1,0 +1,53 @@
+1. Dữ liệu:
+- Nhìn chung có 3 loại dữ liệu:
+    - Có cấu trúc
+    - Bán cấu trúc
+    - Phi cấu trúc
+
+- Dữ liệu có cấu trúc:
+    - Có 1 số thuộc tính tổ chức được xác định trước giúp dễ dàng tìm kiếm và phân tích.
+    - Được hỗ trợ bởi 1 mô hình xác định kích thước của từng trường: loại, độ dài và các hạn chế
+    về giá trị mà nó có thể đảm nhận.
+    - Được lưu trữ trong csdl SQL có cấu trúc.
+
+- Dữ liệu phi cấu trúc:
+    - đặc trưng bởi việc thiếu tổ chức và mô hình dữ liệu mô tả cấu trúc của một bản ghi hoặc các
+    thuộc tính của bất kỳ trường riêng lẻ nào trong bản ghi. Video, âm thanh, blog, tệp nhật ký
+    và bài đăng trên mạng xã hội đều là ví dụ về dữ liệu phi cấu trúc.
+
+
+
+- 3 thuộc tính để xác định dữ liệu lớn:
+    - Volume: Khối lượng dữ liệu quan trọng
+    - Velocity: Tốc độ nhận và xử lý dữ liệu.
+    - Variety: đa dạng đề cập đến nhiều loại dữ liệu có sẵn.
+
+- Dữ liệu lớn và kho dữ liệu:
+    - Data warehouse:
+        - là 1 thuật ngữ thường được sử dụng trong ngành.
+        - là 1 hệ thống lấy data từ nhiều nguồn khác nhau về 1 tổ chức, chuyển đổi và lưu trữ data
+        cho mục đích báo cáo và phân tích.
+        - Lưu trữ số lượng lớn dữ liệu lịch sử và cho phép truy vấn nhanh, phức tập trên tất cả dữ liệu
+        - trong ngữ cảnh của Data warehousing, bạn sẽ nghe thấy thuật ngữ OLAP (online analytical processing)
+        Data warehouse sử dụng OLAP sẽ được tối ưu để xử lý số lượng truy vấn phức tạp thấp trên các tập
+        dữ liệu lớn đc tổng hợp.
+        - So với CSDL bình thường được tối ưu hoá cho việc đọc/ghi, thì data warehouse được tối ưu hoá để
+        tổng hợp và truy xuất các tập dữ liệu lớn.
+
+    - Data lake:
+        - 1 khái niệm bigdata, đề cập đến việc lưu trữ dữ liệu thô, không có cấu trúc và có cấu trúc từ các nguồn
+        dữ liệu của tổ chức nhưng việc sử dụng vẫn chưa xác định.
+        - Lưu trữ dữ liệu thuộc mọi loại, kích cỡ và định dạng ở định dạng gốc cho đến khi cần.
+        - Có thể có dung lượng lưu trữ lớn hơn kho dữ liệu.
+
+    - Sự khác biệt giữa Data Lake và data warehouse:
+        . Kiến trúc và mô hình lưu trữ:
+            - Data Warehouse thường sử dụng một mô hình lưu trữ được cấu trúc trước (pre-defined schema) và lưu
+            trữ dữ liệu ở dạng được tiền xử lý (pre-processed), thường là dữ liệu có cấu trúc.
+            - Data Lake không yêu cầu một mô hình lưu trữ cụ thể và lưu trữ dữ liệu ở dạng nguyên thủy,
+            không cấu trúc hoặc bán cấu trúc.
+        . Phương pháp xử lý dữ liệu:
+            - Data Warehouse thường áp dụng các phương pháp xử lý dữ liệu như ETL (Extract, Transform, Load) để
+            chuẩn hóa và tối ưu hóa dữ liệu trước khi lưu trữ và phân tích.
+            - Data Lake thường không yêu cầu tiền xử lý dữ liệu và cho phép lưu trữ dữ liệu ở dạng nguyên thủy,
+             để có thể phân tích dữ liệu một cách linh hoạt và đa dạng.

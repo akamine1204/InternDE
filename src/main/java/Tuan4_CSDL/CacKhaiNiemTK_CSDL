@@ -1,0 +1,77 @@
+. ACID transaction:
+gồm 4 thuộc tính quan trọng cần đảm bảo khi thực hiện bất kì thao tác giao dịch nào với csdl
+để đảo bảo các yêu cầu về tính an toàn, bền vững và trọn vẹn cho dữ liệu.
+    . Atomicity:
+        - tính nguyên tử, mỗi transaction được xem như 1 đơn vị nguyên tử. Tất cả các bước tạo
+        nên transaction phải thành công hoặc toàn bộ giao dịch sẽ thất bại. Nếu 1 bước của nó gặp
+        trục trặc hoặc thất bại, toàn bộ giao dịch sẽ bị huỷ bỏ và dữ liệu sẽ reset về trạng thái
+        ban đầu.
+
+    . Consistency:
+        - 1 transaction phải duy trì tính nhất quán của dữ liệu cơ bản, không được thực hiện những
+        thay đổi vị phạm đến các quy tắc hoặc ràng buộc đối với dữ liệu.
+        - vd số dư tài khoản của khách hàng không thể âm => không thể xảy ra những giao dịch rút nhiều
+        hơn số dư tài khoản đó.
+
+    . Isolation:
+        - Tính độc lập đảm bảo rằng các transaction diễn ra đồng thời sẽ không tác động lẫn nhau.
+        Mỗi giao dịch sẽ được thực hiện độc lập và được cách biệt với các giao dịch khác.
+
+    . Durability:
+        - Tính chất này đảm bảo rằng tất cả tahy đổi được thực hiện bởi transaction sẽ được lưu vĩnh viễn
+        ngay cả khi hệ thống gặp sự cố hoặc khởi động lại. Nếu dữ liệu không được đảm bảo về tính bền vững,
+        một số hoặc toàn bộ dữ liệu có thể bị mất và ảnh hưởng đến toàn bộ hệ thống.
+
+
+
+. Khái niệm CAP:
+- là 1 khía cạnh quan trọng của các hệ thống phân tán và csdl phân tán, bao gồm cả csdl sql và noSQL.
+- CAP đại diện cho Consistency, Availability, và Partition tolerance, theo CAP, 1 hệ thống phân tán
+chỉ có thể đạt được 2/3 tính chất này cùng 1 lúc, không thể đạt được cả 3.
+    . Consistency:
+        - đảm bảo rằng dữ liệu trong hệ thống luôn ở trạng thái nhất quán.
+        - Dữ liệu sẽ được cập nhật đồng nhất trên toàn bộ hệ thống mà không có sự mâu thuẫn.
+
+    . Availability:
+        - đảm bảo rằng mọi yêu cầu đến hệ thống sẽ nhận được 1 phản hồi, kể cả trong trường hợp xảy ra lỗi.
+        - đảm bảo rằng hệ thống luôn sẵn sàng để phục vụ yêu cầu từ người dùng, ngay cả khi 1 số phần của
+        hệ thống gặp sự cố.
+
+    . Parition tolerance:
+        - Đảm bảo rằng hệ thống vẫn hoạt động 1 cách chính xác, ngay cả khi 1 hoặc nhiều phần của mạng gặp
+        sự cố, dẫn đến việc mất kết nỗi giữa các nút hoặc phân tách mạng.
+
+
+. Khái niệm BASE:
+- là 1 phương pháp tiếp cận trong thiết kế csdl nosql, đặc biệt trong các hệ thống phân tán, nơi tính khả dụng
+và khả năng mở rộng cao được ưu tiên hơn tính nhất quán tuyệt đối.
+    - Basically Available:
+         - Hệ thống luôn sẵn sàng phản hồi yêu cầu, kể cả khi gặp sự cố hoặc lỗi. Mục tiêu của tính khả dụng
+         cơ bản là đảm bảo rằng hệ thống vẫn có thể hoạt động 1 cách chính xác, ngay cả khi 1 số phần của nó
+         gặp sự cố hoặc tạm ngưng hoạt động.
+
+
+    - Soft-state (trạng thái mềm):
+        - Dữ liệu trong hệ thống có thể không nhất quán tạm thời. Trạng thái mềm cho
+    phép sự không nhất quán trong một thời gian ngắn trước khi dữ liệu được đồng bộ hoá lại trên toàn bộ hệ thống.
+    Trạng thái mềm có thể xuất hiện trong quá trình đồng bộ hoá dữ liệu giữa các nút hoặc trong quá trình cập nhật.
+
+
+    - Eventually Consistent (Nhất quán cuối cùng): data sẽ được đồng bộ hoá và trở nên nhất quán trên toàn bộ hệ
+    thống sau một khỏang thời gian. Trong BASE sự nhất quán không phải là một mục tiêu ngay lập tức, mà là
+    1 mục tiêu dài hạn, đạt được thông qua quá trình đồng bộ hoá và cập nhật dữ liệu.
+
+
+
+. 3 chuẩn hoá trong thiết kế NF:
+    - Chuẩn 1: miền giá trị của mỗi thuộc tính chỉ chứa giá trị đơn nguyên tử, không thể phân tách ra được.
+    , giá trị của mỗi thuộc tính trong mỗi bộ phải là giá trị đơn.
+    - Chuẩn 2:
+        - quan hệ đó thoả mãn chuẩn 1.
+        - Mọi thuộc tính không khoá của quan hệ phụ thuộc hàm đầy đủ vào khoá chính.
+    - Chuẩn 3:
+        - quan hệ đó thoả mãn chuẩn 2
+        - không có thuộc tính không khoá nào phụ thuộc bắc cầu vào khoá chính.
+    - Chuẩn Boyce-Codd:
+        - Thoả mãn dạng chuẩn 3NF.
+        - Không có thuộc tính khoá phụ thuộc hàm vào thuộc tính không khoá.

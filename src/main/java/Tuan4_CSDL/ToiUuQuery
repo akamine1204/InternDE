@@ -1,0 +1,145 @@
+Ví dụ về 10 câu query mySQL không tốt và cách tối ưu nó (minh hoạ bằng explain)
+
+
+
+1.Tránh việc sử dụng select *
+ Câu chưa tối ưu:
+vd: SELECT * FROM bus;
+
+Câu đã tối ưu:
+vd: select bus_id from bus;
+
+- Lựa chọn cột phù hợp để truy vấn thay vì truy vấn toàn bộ (select *) để thực hiện việc truy xuất dữ liệu nhanh hơn
+thay vì việc truy xuất toàn bộ dữ liệu của 1 bản ghi.
+
+2. Không sử dụng Having để làm điều kiện cho câu lệnh SELECT
+ Câu chưa tối ưu:
+- SELECT bus_id from bus
+  group by bus_id
+  having bus_id > 5;
+
+  Câu đã tối ưu:
+  Select bus_id from bus
+  where bus_id>5
+  group by bus_id
+
+- Mệnh đề having có tác dụng lock sau khi các bản ghi đã được chọn và được sử dụng như filter, nó k có nhiều tác dụng
+với lệnh select. Nên thực hiện việc lấy điều kiện trong mệnh đề Where để thực hiện việc chọn các bản ghi hiệu quả rồi sắp
+xếp chúng bằng group by.
+
+3. Loại bỏ DISTINCT
+    Câu chưa tối ưu:
+    select distinct bus_id from bus
+
+   Câu tối ưu:
+   select bus_id from bus
+
+   - Đối với thuộc tính đã được set primary key thì từ khoá distinct trong truy vấn là không cần thiết
+   vì thuộc tính đó chính là khoá chính của bảng - đây là 1 phần của kết quả. Việc đưa mệnh đề distinct sẽ
+   khiến CSDL thực hiện thêm 1 phép so sánh để loại bỏ các dòng trùng nhau trong tập kết quả.
+
+4. Thực hiện kết nối giữa các bảng thay cho truy vấn lồng
+    Câu chưa tối ưu:
+    select tenSV
+    from LopToan
+    where tenSV in
+    (select tenSV from LopVan)
+
+   Câu tối ưu:
+   select tenSV
+   from LopToan t, LopVan v
+   where t.tenSV = v.tenSV;
+
+   - thực hiện phép kết nối các bảng với nhau cho hiệu suất tốt hơn việc sử dụng các truy vấn lồng nhau
+   vì nó loại bỏ overhead của truy vấn lồng và khi sử dụng truy vấn lồng nó sẽ phải thực hiện các truy vấn bên trong trước
+   xong lấy kết quả để làm điều kiện cho truy vấn bên ngoài, cần phải có không gian để lưu trữ kết quả tạm thời
+   => gây tốn kém chi phí tài nguyên.
+
+ 5. Tối ưu hoá câu lệnh bằng UNION thay vì sử dụng OR trong mệnh đề where:
+ - Câu chưa tối ưu:
+ select tenSV
+ from LopToan t
+ where t.diem >8 or t.gioitinh = 'Male'
+
+ - Câu tối ưu:
+ select tenSV
+ from LopToan
+ where diem > 8
+ UNION ALL
+ select tenSV
+ from LopVan
+ where gioitinh = 'Male'
+
+ - Khi từ khoá OR được sử dụng nhiều lần, dẫn đến việc có thể mysql sẽ phải tìm toàn bộ bảng để kiếm bản ghi.
+ Bởi vậy Union sẽ giúp câu truy vấn nhanh hơn, đặc biệt nếu đánh index 1 cách hợp lý.
+
+ 6. Tránh 1 số trường hợp Index không được sử dụng:
+ - Câu lệnh chưa tối ưu:
+ select tenSV
+ from LopToan
+ where SUBSTRING(tenSV,1,1)='H'
+
+ select tenSV
+ from LopToan
+ where tenSV="Hoang"
+
+ - Trong 1 số trường hợp,index sẽ không được sử dụng ví dụ như sử dụng biểu thức toán học trên thuộc tính đặt index
+ như salary/12 >=4000 chẳng hạn, hoặc sử dụng hàm tính toán trên xâu,so sánh với các trường không cùng kiểu, so sánh với
+ giá trị rỗng.
+
+ 7. Tránh sử dụng các hàm không tối ưu:
+ - câu lệnh chưa tối ưu:
+ select tenSV
+ from LopToan
+ where year(dateofbirth) = '2001';
+
+ - câu lệnh tối ưu:
+ select tenSV from LopToan
+ where dateofbirth >= '2001-01-01'
+ and dateofbirth < '2002-01-01';
+
+ - Khi sử dụng hàm year() sẽ khiến thuộc tính dateofbirth không thể sử dụng index một cách hiệu quả, khi sử dụng một hàm
+ trong điều kiện truy vấn, mysql cần phải áp dụng hàm này cho mỗi hàng trong bảng để so sánh với giá trị được chỉ định.
+
+ 8. Sử dụng count(*) để đếm số lượng bản ghi trong bảng
+ - câu lệnh chưa tối ưu:
+ select count(id)
+ from LopToan;
+
+ - câu lệnh tối ưu:
+ select count(*)
+ from LopToan;
+
+ - trong hầu hết các trường hợp, sử dụng count(*) thường đc tối ưu hơn so với count(column) khi mục tiêu là đếm số lượng
+ bản ghi của bảng, đặc biệt là khi không cần phải xử lý các giá trị null trong cột.
+
+
+ 9. Hạn chế toán tử so sánh 2 lần:
+ - câu lệnh chưa tối ưu:
+ select tenSV
+ from LopToan
+ where id<=10
+
+ - câu lệnh đã tối ưu:
+ select tenSV
+ from LopToan
+ where id<11
+
+ - đối với câu lệnh trên, khi sử dụng <= hay >= thì bản chất phải so sánh 2 lần là id<10 and id=10, điều này không tối ưu bằng
+ việc so sánh chỉ 1 lần < hoặc >
+
+
+ 10. Hạn chế việc sử dụng LIKE với % ở đầu xâu muốn tìm kiếm
+ - câu chưa tối ưu:
+ select tenSV
+ from LopToan
+ where tenSV like '%Hoang'
+
+ - tối ưu câu lệnh:
+ select tenSV
+ from LopToan
+ where tenSV like 'Hoang%'
+
+- Giả sử khi đặt index trên thuộc tính tenSV, khi đấy hệ thống sẽ set b tree index trên chữ cái đầu của giá trị thuộc tinh
+tenSV, và sẽ liên tục rẽ nhánh theo các chữ cái tiếp theo, khi đấy sử dụng % đằng trước sẽ không còn hiệu quả khi truy vấn
+trên index này nữa.

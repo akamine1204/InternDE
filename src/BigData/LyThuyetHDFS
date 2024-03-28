@@ -1,0 +1,32 @@
+Hadoop Distributed File System
+Mục tiêu của HDFS:
+    - Tiết kiệm chi phí cho việc lưu trữ dữ liệu lớn: có thể lưu trữ dữ
+    liệu megabytes đến petabytes, ở dạng có cấu trúc hay không có cấu trúc.
+    - Dữ liệu có độ tin cậy cao và có khả năng khắc phục : dữ liệu lưu trữ
+    trong HDFS đc nhân bản thành nhiều phiên bản và được lưu tại các dataNode
+    khác nhau, khi có 1 máy bị lỗi thì còn dữ liệu được lưu tại DataNode khác.
+    - Tính chính xác cao: dữ liệu lưu trữ trong HDFS thường xuyên được kiểm tra
+    bằng mã checksum được tính trong quá trình ghi file, nếu có lỗi xảy ra sẽ được
+    khôi phuc bằng các bản sao.
+    - Scalable
+    - Có throughput cao: tốc độ xử lý truy nhập dữ liệu cao.
+    - Data locality: xử lý dữ liệu tại
+
+Với hdfs, dữ liệu được ghi trên 1 máy chủ và có thể đọc lại nhiều lần sau đó tại bất cứ
+máy chủ khác trong cụm HDFS. HDFS bao gồm 1 Namenode chính và nhiều Datanode kết nối
+lại thành 1 cụm (cluster)
+
+HDFS Architecture:
+
+    - Namenode: chỉ gồm duy nhất 1 namenode được gọi là master node thực hiện các nhiệm vụ:
+        . Lưu trữ metadata của dữ liệu thực tế (tên, đường dẫn, block id, cấu hình datanode, ví trí blocks,..)
+        . Quản lý không gian tên của hệ thống file (ánh xạ các file name với các blocks, ánh xạ các block vào
+        các datanode)
+        . Quản lý cấu hình của cụm
+        . Chỉ định công việc cho datanode
+
+
+    - Datanode:
+        . Lưu trữ dữ liệu thực tế.
+        . Trực tiếp thực hiện và xử lý công việc (đọc/ghi dữ liệu).
+

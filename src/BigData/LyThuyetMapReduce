@@ -1,0 +1,72 @@
+MapReduce
+- là sự triển khai mô hình điện toán do google giới thiệu.
+- Nó giống như sử dụng phương pháp chia để trị.
+- MapReduce là mô hình lập trình được sử dụng để xử lý các tập dữ liệu lớn trên 1 cụm máy bằng
+sử dụng thuật toán phân tán
+- Với toàn bộ sức mạnh của mình thì mapreduce cơ bản là 1 hệ thống xử lý hàng loạt và không phù
+hợp để phân tích tương tác. Chúng tồn tại 2 pha:
+    - Map: người dùng chỉ định hàm map để xử lý cặp key/value thành 1 cặp trung gian.
+    - Reduce: hợp nhất tất cả values trung gian với cùng key trung gian.
+
+MapReduce có những đặc trưng sau:
+    - Phân tán: MapReduce là 1 framework phân tán gồm những cụm các phần cứng mà
+    chạy các map và reduce task.
+    - Song song: các tác vụ Map, Reduce luôn luôn hoạt động song song.
+    - Khả năng chịu lỗi: khi có 1 vài task lỗi, nó sẽ được lập lịch lại trên 1 node khác.
+    - Có khả năng mở rộng: nó có thể được scale tuỳ ý, như 1 vấn đề trở nên lớn hơn, nhiều
+    máy có thể được thêm để xử lý vấn đề trong 1 khoảng thời gian cho phép.
+
+
+Map Phase: map function -> generate a set of intermediate key/value pairs.
+Reduce Phase: merges all intermediate values associated with the same intermediate key.
+
+
+Mapper:
+note: việc sắp xếp dữ liệu theo key xảy ra trong quá trình map, kphai trong quá trình reduce.
+code example:
+    // <KEYIN, VALUEIN, KEYOUT, VALUEOUT>
+    public class CarMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+
+        @Override
+        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            // We can ignore the key and only work with value
+            String[] words = value.toString().split(" ");
+
+            for (String word : words) {
+                context.write(new Text(word.toLowerCase()), new IntWritable(1));
+            }
+        }
+    }
+
+
+Reducer:
+    public class CarReducer extends Reducer<Text, IntWritable, Text, LongWritable> {
+
+        @Override
+        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+
+            long sum = 0;
+
+            for (IntWritable occurrence : values) {
+                sum += occurrence.get();
+            }
+
+            context.write(key, new LongWritable(sum));
+        }
+    }
+
+
+- đầu ra của quá trình map sẽ là đầu vào của quá trình reduce. ở đây đầu vào tham số được truyền vào
+là key (tập các giá trị khoá được sắp xếp sau khi map, những tập hợp values có type là intwritable là
+tập những giá trị đi theo cùng 1 giá trị key tương ứng, context được sử dụng để ghi ra kết quả của
+phương thức map).
+- copy dữ liệu tính xong từ mapper sang reducer mà không cần đợi tất cả mapper xong, copy ngay môi khi
+1 task mapper xong.
+- dữ liệu ở mapper đã được shuffle trước khi move to reducer.
+- khi ghép lại thì call sort, mặc dù đã sort trong mapper.
+
+
+
+
+
+

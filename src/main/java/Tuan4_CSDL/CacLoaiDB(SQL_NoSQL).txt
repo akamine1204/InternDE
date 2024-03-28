@@ -1,0 +1,73 @@
+Ưu/Nhược điểm của từng loại CSDL:
+
+Cơ sở dữ liệu quan hệ (SQL):
+Ưu điểm:
+    - Tính nhất quán cao: Dữ liệu đc tổ chức theo các quan hệ và tuân theo 1schema cụ thể, đảm bảo
+    tính nhất quán và đồng nhất của dữ liệu.
+    - Giao dịch ACID: Hỗ trợ các giao dịch ACID để đảm bảo tính toàn vẹn và nhất quán của data
+    - ràng buộc và quan hệ phức tạp: định nghĩa được các ràng buộc khoá ngoại và quan hệ phức tạp giữa
+    các bảng, cung cấp tính linh hoạt trong việc truy vấn và xử lý dữ liệu.
+Nhược điểm:
+    - Khả năng mở rộng bị hạn chế:  khó khăn trong việc mở rộng csdl khi cần xử lý tài cao hoặc
+    bigdata.
+    - Cấu trúc là cố định: không linh hoạt thay đổi cấu trúc dữ liệu.
+    - Hiệu suất thấp trong các tình huống phân tán: Khó khăn trong veiejc xử lý các hệ thống phân tán
+    và yêu cầu về hiệu suất cao.
+
+
+Cơ sở dữ liệu phi quan hệ (NoSQL):
+Ưu điểm:
+    - Scalable: dễ dàng theo chiều ngang, cho phép xử lý tải cao và bigdata.
+    - linh hoạt về schema: không yêu cầu cố định, linh hoạt thay đổi cấu trúc.
+    - Hiệu suất cao: thích hợp cho các ứng dụng cso yêu cầu high-perform và thời gian respond ngắn
+Nhược điểm:
+    - Tính nhất quán không đảm bảo ngay lập tức: phải chờ 1 lúc để đồng bộ trên toàn bộ hệ thống.
+    - Khó khăn trong việc truy vấn phức tạp:hỗ trợ ít tính năng truy vấn phức tạp hơn so với SQL,
+    đặc biệt là trong các mô hình dữ liệu phi cấu trúc.
+    - Thiếu tính nấht quán cao: 1 số hệ thống nosql có tính nhất quán thấp hơn so với rdbms.
+
+
+
+
+
+Cơ sở dữ liệu quan hệ (sql):
+- mysql:
+    - là 1 hệ thống quản lý cơ sở dữ liệu quan hệ mã nguồn mở phổ biến được sử dụng rộng rãi
+    cho các ứng dụng web và doanh nghiệp nhỏ đến trung bình.
+    - Hỗ trợ các tính năng như các bảng quan hệ, ràng buộc khoá ngoại, ACID transaction và ngôn
+    ngữ truy vấn SQL phong phú.
+
+
+- PostgreSQL:
+    - là 1 hệ thống quản lý csdl quan hệ mạnh mẽ, mã nguồn mở, với tính năng mở rộng và linh hoạt
+    cao.
+    - Nó hỗ trợ một loạt các tính năng bao gồm JSON, phần mở rộng hình học và khả năng truy vấn
+    phức tạp.
+
+
+- Oracle Database:
+    - Oracle là 1 trong những hệ thống rdbms hàng đầu trên thị trường, đươc sử dụng cho các ứng dụng
+    doanh nghiệp lớn và quan trọng.
+    - Nó cung cấp các tính năng bảo mật cao, khả năng mở rộng và hỗ trợ cho các ứng dụng phức tạp.
+
+
+
+Cơ sở dữ liệu phi quan hệ (NoSQL):
+    - MongoDB:
+        - là 1 hệ thống quản lý cơ sở dữ liệu phi quan hệ dựa trên tài liệu, cho phép lưu trữ dữ liệu dưới
+        dạng JSON tài liệu.
+        - Nó linh hoạt và có thể mở rộng dễ dàng, phù hợp cho các ứng dụng web và di động, nơi cấu trúc dữ
+        liệu thay đổi thường xuyên.
+
+
+    - Cassandra:
+        - là 1 hệ thống quản lý cơ sở dữ liệu phi quan hệ dựa trên cột, được thiết kế để xử lý dữ liệu lớn
+        và mở rộng dễ dàng theo chiều ngnag.
+        - Nó được sử dụng rộng rãi cho việc lưu trữ và xử lý dữ liệu trên nhiều máy chủ.
+
+
+    - Redis:
+        - Là 1 hệ thống quản lý cơ sở dữ liệu key-value phi quan hệ, được sử dụng chủ yếu cho việc lưu trữ bộ
+        nhớ đệm, xếp hạng, và các dữ liệu tạm thời.
+        - Nó rất nhanh chóng và linh hoạt, thích hợp cho các ứng dụng có yêu cầu về hiệu suất cao và thời gian
+        phản hồi ngắn.
