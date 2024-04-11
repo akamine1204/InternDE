@@ -22,6 +22,10 @@ Reduce Phase: merges all intermediate values associated with the same intermedia
 
 
 Mapper:
+Luôn có 1 master node trong hạ tầng để nhận đầu vào. Ngay sau master node là các sub-inputs / sub-problems. Các sub-problems được phân phối đến các worker nodes. Một worker node sau đó xử lý chúng. Một khi worker node hoàn thành xử lý với sub-problem, nó trả kết quả trở về master node.
+
+
+
 note: việc sắp xếp dữ liệu theo key xảy ra trong quá trình map, kphai trong quá trình reduce.
 code example:
     // <KEYIN, VALUEIN, KEYOUT, VALUEOUT>

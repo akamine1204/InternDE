@@ -37,7 +37,7 @@ chỉ có thể đạt được 2/3 tính chất này cùng 1 lúc, không thể
         - đảm bảo rằng hệ thống luôn sẵn sàng để phục vụ yêu cầu từ người dùng, ngay cả khi 1 số phần của
         hệ thống gặp sự cố.
 
-    . Parition tolerance:
+    . Partition tolerance:
         - Đảm bảo rằng hệ thống vẫn hoạt động 1 cách chính xác, ngay cả khi 1 hoặc nhiều phần của mạng gặp
         sự cố, dẫn đến việc mất kết nỗi giữa các nút hoặc phân tách mạng.
 

@@ -24,9 +24,152 @@ HDFS Architecture:
         các datanode)
         . Quản lý cấu hình của cụm
         . Chỉ định công việc cho datanode
+        Metadata trong NameNode được lưu trữ dưới dang 2 file:
+        FSImage: Filesystem image lưu trữ metadata của NameNode từ khi khởi tạo.
+        EditLogs: Chứa thông tin các thay đổi gần đây nhất của cụm chưa có trong FSImage.
+
 
 
     - Datanode:
         . Lưu trữ dữ liệu thực tế.
         . Trực tiếp thực hiện và xử lý công việc (đọc/ghi dữ liệu).
+
+
+    - Secondary Namenode:
+        . Là 1 node phụ chạy cùng với Namenode, như là 1 trợ lý đắc lực của Namenode, có vai trò nhiệm vụ rõ ràng:
+        . Nó thường xuyên đọc các file, các metadata đc lưu trên RAM của datanode và ghi vào ổ cứng.
+        . Nó liên tục đọc nội dung trong editlogs và cập nhật vào FsImage, để chuẩn bị cho lần khởi động
+        tiếp theo của namenode.
+        . Nó liên tục kiểm tra tính chính xác của các tệp tin lưu trên các datanode.
+
+
+- Cơ chế Heartbeat:
+    . Là cách liên lạc hay cách để datanode cho namenode định kì biết là nó còn sống.
+    . Nếu datanode không gửi heartbeat về cho namenode thì namenode coi rằng node đó đã hỏng và không thể
+    thực hiện nhiệm vụ được giao. Namenode sẽ phân công task đó cho 1 datanode khác.
+
+- Rack: Rack>Node>Block
+    . Là 1 cụm datanode cùng 1 đầu mạng, bao gồm các máy vật lý (tương đương 1 server hay 1 node) cùng kết nối
+    chung 1 switch.
+
+
+- Blocks:
+    . Là 1 đơn vị lưu trữ của HDFS, các data được đưa vào HDFS sẽ được chia thành các block có các kích thước cố
+    định (nếu không cấu hình thì mặc định nó là 128mb).
+    . vd 1 file dữ liệu sẽ được chia nhỏ thành các block và phân chia cho các data node lưu trữ.
+    . HDFS sẽ không tốt khi xử lý một lượng lớn các file nhỏ. mỗi dữ liệu lưu trữ trên HDFS được đại diện bằng 1
+    blocks với kích thước là 128mb, vậy nếu lưu trữ lượng lớn file nhỏ thì sẽ cần 1 lượng lớn các block để lưu trữ
+    và mỗi block chúng ta chỉ cần dùng tới 1 ít và còn thừa rất nhiều dung lượng gây lãng phí. VD block size của hệ
+    thống file ở các hệ điều hành như linux là 4kb << so với 128mb.
+    . Thường thì 1 block chiếm khoảng 150 bytes trong bộ nhớ namenode (kqtam kích thước block là 128mb hay 1mb). Vì
+    vậy để tối ưu cho cụm chúng ta nên lưu trữ các block có kích thước xấp xỉ với dung lượng block được cấu hình,
+    tránh việc lưu nhiều file nhỏ chiếm bộ nhớ namenode mà lại không tối ưu được dung lượng vật lý.
+
+
+- Hoạt động:
+    . Nguyên lý chung của đọc/ghi dữ liệu trên HDFS:
+
+    . Cơ chế ghi file trong HDFS:
+        - Client gửi yêu cầu ghi file đến NN, NN kiểm tra quyền và trả lại client danh sách các
+        DN mà client sẽ ghi các block này.
+        - Việc lựa chọn DN của NN là tuỳ thuộc vào tính khả dụng, số lượng replicate và RackAwareness
+        - Giả sử NN quyết định sẽ ghi block A vào 3 DN 1-5-6, để đảm bảo luôn có 3 bản ghi, trong đó
+        DN1 ở rack1 và DN5,6 ở rack 5 để đảm bảo RackAwareness.
+
+        Sau khi client nhận được thông tin này, việc ghi sẽ tiến hành theo 3 bước:
+        - Chuẩn bị pipeline.
+        - Đẩy dữ liệu và replication.
+        - Nhận thông tin phản hồi.
+
+        . Chuẩn bị pipeline:
+            . trước khi ghi data, client kiểm tra các DN trong tình trạng sẵn sàng, ứng với mỗi block, client sẽ kết nối
+            đến các DN và kiểm tra, vd với block A, client sẽ thực hiện các bước sau:
+            1. Tạo 1 kết nối TCP/IP đến DN 1 (DN đầu tiên trong danh sách 3 DN). Client thông báo DN 1 sẵn sàng cho việc
+            ghi dữ liệu, đồng thời gửi kèm danh sách 2 DN tiếp theo mà block A sẽ được replicate là 5 và 6.
+            2. DN1 sau đó kết nối đến DN5  và thông báo về việc ghi dữ liệu.
+            3. DN5 tiếp tục thông báo đến dN6 về việc ghi dữ liệu.
+            4. Khi bước thông báo hoàn tất, lần lượt DN6 phản hồi về DN5, sau đó DN5 phản hồi cho DN1.
+            5. DN1 phản hồi cho client về việc sẵn sàng ghi dữ liệu. Nếu có bất thường nào xảy ra mà một DN không sẵn sàng,
+            NN sẽ phải gửi lại thông tin DN mới cho client.
+
+
+        . Đẩy dữ liệu và replication:
+            . Sau khi pipeline hoàn tất, dữ liệu bắt đầu được ghi từ client đến DN đầu tiên, sau đó các DN sẽ tự replicate
+            cho nhau.
+            . Client ghi dữ liệu vào DN1.
+            . DN1 kết nối đến DN5 và ghi dữ liệu vào DN5, DN5 ghi dữ liệu xong kết nối và ghi dữ liệu đến DN6.
+
+        . Nhận thông tin phản hồi:
+            . Sau khi việc ghi hoàn tất, các DN sẽ tuần tự gửi acknowledgement về cho client. Theo đó DN6 ghi dữ liệu cuối
+            cùng  sẽ gửi ack về cho DN5, DN5 gửi cho DN1. Cuối cùng DN1 gửi ack cho client rằng block đã được ghi thành công,
+            client update cho NN, NN update metadata về thông tin vị trí block mới được ghi thành công và ngắt kết nối tcp/ip.
+            . Việc ghi dữ liệu này được tiến hành song song trên tất cả các block. Ví dụ file có 3 block cần ghi A,B,C thì cả
+            3 block này đều được ghi cùng lúc.
+
+
+
+    . Cơ chế đọc file trong HDFS:
+        1. client bắt đầu yêu cầu đọc bằng phương thức open() trong object DistributedFileSystem.
+        2. Object này kết nối đến NN để lấy thông tin metadata về vị trí blockfile.
+        3. NN trả về cho client thông tin metadata của block.
+        4. Khi client nhận được thông tin metadata của DN, nó cũng nhận được object FSDataInputStream,
+        object này chứa DFSInputStream chịu trách nhiệm giao tiếp với DN. Client gọi phương thức read()
+        khiến DFSInputStream khởi tạo kết nối đến DataNode.
+        5. Dữ liệu được client gọi liên tục qua phương thức read() cho đến cuối của block.
+        6. khi đọc xong 1 block, client tiếp tục đọc đến cho các block tiếp theo.
+        7. Khi đã đọc xong hết các block, client đóng kết nối với phương thức close().
+
+
+
+
+
+NameNode High Availability with QJM:
+    . Như đã biết trong Hadoop có 2 thành phần chính là NameNode và DataNode, trong kiến trúc NameNode trong Hadoop 1x và biết
+    rằng với kiến trúc như vậy thì khả năng chịu lỗi rất là thấp => NameNode High Availability.
+
+1. Architecture:
+    . Trong phiên bản Hadoop 1x, tồn tại 1 NN duy nhất điều phối hoạt động toàn cụm, mọi yêu cầu trong cụm đều phải đi qua đây.
+    => Trong trường hợp NN hay máy chủ cài đặt bị lỗi bất ngờ thì mọi hoạt động trong cụm sẽ dừng lại, không thể read/write data nữa.
+    => NameNode HighAvailability ra đời: trong cụm sẽ tồn tại 2 NN đồng thời, 1 Active và 1 StandBy cho phép tăng khả năng chịu lỗi.
+
+    . Tại 1 thời điểm chỉ có 1 Active NN, NN này chịu trách nhiệm cho toàn bộ operations trong cụm và update metadata, StandBy NN có
+    nhiệm vụ đồng bộ metadata với active NN, đảm bảo có thể thay thế vị trí của Active trong trường hợp NN này crash.
+    . Để thực hiện việc đồng bộ metadata giữa các NN, cả active và standby giao tiếp với 1 cụm QuorumJournalNode (QJM) gồm nhiều JN.
+    Các hoạt động của client đều được active NN cập nhật lại và ghi xuống editLogs ở các JN, standby NameNode sẽ đọc các thay đổi này
+    và cập nhật lại metadata mới nhất.
+    . Số lượng JN trong 1 cụm Quorum phải là số lẻ 3,5 hoặc 7. Vì Active NN cần ghi xuống các JN này và nếu có vấn đề gì với dữ liệu,
+    các JN sẽ vote với nhau tìm ra phiên bản chiếm đa số vote là dữ liệu đúng. Với veiejc sử dụng nhiều JN cũng tránh biến nó trở
+    thành điểm chết.
+    . Tại 1 thời điểm JN chỉ cho phép 1 NN được quyền ghi, đó là Active NN, còn lại StandBy chỉ được quyền đọc. Các DN kết nối đến cả 2
+    NN và đồng thời báo cáo tình trạng cũng như thông tin block đến 2 NN.
+
+2. Adminitrative Commands:
+    . Khi sử dụng NameNode HA có thể sử dụng 1 command mới là "hdfs haadmin" có thể dùng để manually chuyển trạng thái NN giữa Active
+    và standby.
+    - transitionToActive hoặc transitionToStandby:
+    - failover: khởi tạo việc chuyển trạng thái giữa 2 NameNode.
+    - getServiceState: trả về trạng thái là Active hay Standby của NameNode.
+    - getAllServiceState: trả về trạng thái của tất cả các NameNode.
+    - checkHealth: kiểm tra trạng thái của NameNode.
+
+
+3. Automatic Failover:
+    . Việc implements automatic failover của NN dựa trên các lơị ích sau của zookeeper:
+        - Failure detection: cả 2 NN đều giữ một session trong Zookeeper. Nếu 1 active NN fail, session này sẽ hết hạn và failover xảy ra.
+        - Active NN election: Zookeeper cung cấp 1 cơ chế đơn giản cho veiejc chọn Active NN, nếu Active NN crash, Standby NN sẽ chiếm 1
+        lock đặc biệt trong Zookeeper ám chỉ nó sẽ là Active NN tiếp theo.
+
+    . Tiến trình ZKFC (zookeeperfailovercontroller) thường được cài đặt với NN làm nhiệm vụ sau:
+        - Health monitoring: ZKFC ping đến NN định kì để check tình trạng của NN.
+        - Zkper session management: khi NN khoẻ mạnh và là active, nó sẽ chiếm và khoá 1 znode trong Zookeeper, khoá này sẽ tồn tại đến
+        khi NN hết active.
+        - Zookeeper-based election: Nếu NN đang khoẻ mạnh và không có session nào chiếm "lock" znode nó sẽ tự cố gắng chiếm và lock
+        znode này, biến mình trở thành ActiveNN.
+
+
+NOTE: 1 số keypoint chính cần nhớ là:
+    - Tại 1 thời điểm, chỉ có 1 nameNode là active, mọi hoạt động đều phải đi qua đây.
+    - standby namenode đồng bộ metadata thông qua quorum journal node.
+    - automatic failover giữa 2 nn dựa trên hoạt động của zookeeper.
+
 

@@ -1,0 +1,172 @@
+Apache Spark Fundamentals
+PHẦN 1:
+- 1 hệ thống dữ liệu lớn => Hadoop + Spark (1 để lưu trữ và 1 để xử lý dữ liệu).
+- The Spark Components:
+    . Spark Core: là engine thực thi chung làm nền tảng cho Spark. Tất cả các chức năng khác được xây dựng dựa trên
+    base là Spark Core. Nó cung cấp khả năng tính toán trên bộ nhớ RAM và cả bộ dữ liệu tham chiếu trong các hệ thống
+    external storage.
+    . SparkSQL: là 1 thành phần nằm trên SparkCore, giới thiệu 1 khái niệm trừu tượng hoá dữ liệu mới gọi là SchemaRDD,
+    cung cấp hỗ trợ cho dữ liệu có cấu trúc và bán cấu trúc.
+    . SparkStreaming: tận dụng khả năng lập lịch memory-base của Spark Core để thực hiện streaming analytics.
+    . MLlib: là 1 framework machine learning phân tán trên Spark tận dụng khả năng tính toán tốc độ cao nhờ distributed
+    memory-based của kiến trúc spark.
+    . GraphX: là 1 framework xử lý đồ thị phân tán. Nó cung cấp 1 API để thực hiện tính toán biểu đồ có thể mô hình hoá
+    các biểu đồ do người dùng xác định bằng cách sử dụng API đã đc tối ưu sẵn.
+
+- Spark vs Hadoop MapReduce:
+    . Về cơ chế hoạt động của MapReduce (MR):
+        - input data được đọc từ HDFS => xử lý bằng các thao tác chỉ định => output được ghi vào HDFS => input data tiếp
+        tục được load => xử lý => ghi output lên HDFS... Chuỗi các step (read-process-write) đó được lặp cho đến khi hoàn
+        thành công việc. Vì input được chia thành các block độc lập với nhau (hdfs lưu trữ data dưới dạng block), các
+        task map-reduce được thực hiện song song => hữu ích để xử lý bộ dữ liệu lớn.
+        - Tuy nhiên MR vẫn còn tồn tại là quá trình xử lý không thực sự hiệu quả trong trường hợp phải lặp nhiều step, mà
+        mỗi step cần thiết phải ghi output vào HDFS trước khi step tiếp theo được thực hiện => việc này tạo ra vấn đề trong
+        việc lưu trữ và replicate, tăng độ trễ xử lý do phần lớn thực hiện trên Disk vốn có hiệu suất I/O k cao.
+        - Develop, debug với MR có phần khó khăn vì code dài dòng.
+
+
+    . Về cơ chế hoạt động của Spark: khắc phục những tồn tại của Hadoop MR.
+        - Spark đưa ra 1 khái niệm mới RDD - Resilient Distributed Dataset đóng vai trò như 1 ctdl cơ bản trong Spark, RDD
+        được định nghĩa là trừu tượng cho 1 tập hợp các phần tử bất biến. (bản chất là được lưu trên các ô nhớ read-only),
+        được phân vùng có thể được chia sẻ, tác động song song.
+        - Qua đó, input data từ storage system chỉ cần load 1 lần duy nhất, các step thực hiện biến đổi, xử lý input data
+        các step thực hiện biến đổi, xử lý input data được lên kế hoạch, optimize và thực hiện một cách liên tục cho đến khi
+        output được trả khi kết thúc công việc.
+        - Toàn bộ quá trình đó được diễn ra trên bộ nhớ RAM (khi hết RAM sẽ được chuyển sang xử lý trên Disk) tận dụng hiệu
+        suất I/O cao từ đó có thể giảm thời gian thực thi nhỏ hơn 10-100 lần Hadoop MR.
+
+
+
+- Ưu điểm của Spark:
+    - Advanced Analytics: k chỉ hỗ trợ map và reduce, nó còn hỗ trợ truy vấn SQL, Streaming data, ML và các thuật toán xử lý đồ
+    thị đóng vai trò như 1 công cụ phân tích dữ liệu cực kì mạnh mẽ.
+    - Speed: giúp chạy 1 ứng dụng với tốc độ rất nhanh, so với hadoop cluster, spark nếu chạy trên bộ nhớ nhanh hơn tới 100 lần
+    và 10 lần khi chạy trên đĩa.
+    - Supports multiple languagues: cung cấp built-in APIs phổ biến từ java, scala đến python, R..
+
+Nhược điểm:
+    - K có hệ thống filesystem riêng, do đó, nó phụ thuộc vào 1 số nền tảng khác như Hadoop hoặc 1 nền tảng dựa trên đám mây (S3,
+    gg cloud storage,..)
+    - Spark đòi hỏi rất nhiều RAM để chạy trong bộ nhớ, do đó chi phí của Spark khá cao.
+    - Việc tối ưu hoá, tinh chỉnh để phù hợp với các bộ dữ liệu cụ thể cần có kinh nghiệm và thực hiện thủ công.
+
+
+
+
+PHẦN 2: Spark Core và RDD:
+1. Distributed computing:
+    - Thông thường, để xử lý dữ liệu trên cụm lưu trữ dữ liệu phân tán thì sẽ thực hiện việc kéo dữ liệu phân tán về xử lý sau đó
+    lại phân tán output ra để lưu trữ, tuy nhiên với Spark sẽ ngược lại, ta sẽ gửi code xử lý từ máy trung gian tới các máy lưu
+    trữ dữ liệu phân tán để thực hiện việc xử lý, rồi lưu luôn tại các máy đó => Vừa không mất công chuyển đổi dữ liệu qua lại,
+    lại giảm nhẹ gánh nặng tính toán lên 1 máy tính.
+    - Tổng quan là như vậy, tuy nhiên có những tính toán vẫn cần phải xử lý tập trung (vd như count số bản ghi mà phân tán thì tất
+    nhiên cần phải 1 máy tính tổng từng phần từ các máy khác), Spark cung cấp các API linh hoạt để tối ưu việc gửi nhận dữ liệu
+    giữa các máy tính.
+
+
+2. Spark Application:
+ 1 chương trình Spark gồm 2 thành phần chính:
+    - Driver Program: là 1 JVM process, chứa hàm main() như bất kì 1 chương trình JVM nào khác, nó đóng vai trò điều phối code/logic
+    xử lý trên driver. Driver program chứa SparkSession.
+    - Executors: Là các worker, chịu trách nhiệm thực hiện các tính toán các logic nhận từ Driver. Dữ liệu cần xử lý có thể được load
+    trực tiếp vào memory của Executor.
+
+ Spark session: đại diện cho khả năng tương tác với executors trong 1 chương trình. Spark session chính là entry point của mọi ctrinh
+ Spark. Từ SparkSession, có thể t RDD/DataFrame/DataSet, thực thi SQL.. từ đó thực thi tính toán phân tán.
+
+
+3. RDD (resilient distributed dataset):
+    - Rõ ràng là dữ liệu phân tán rời rạc trong mạng, Spark giới thiệu 1 khái niệm là RDD, dịch thô ra tiếng Việt là: Tập dữ liệu phân
+    tán linh hoạt. Trong 1 chương trình Spark, RDD là đại diện cho TẬP dữ liệu phân tán.
+    - ví dụ: có 1 object colors = array{red,blue,black,white,yellow}. Trong chương trình thông thường, 5 phần tử kia nằm trên 1 máy
+    tính duy nhất và thông qua biến colors có thể truy cập đến dữ liệu. Tuy nhiên trong hệ phân tán, nếu phần dữ liệu red, blue nằm trên
+    máy tính A còn black, white, yellow lại nằm trên máy tính B thì RDD sẽ giúp truy cập 2 phần dữ liệu rời rạc này như 1 đối tượng thông
+    thường.
+    - Đặc điểm quan trọng của 1 RDD là số partitions. 1 RDD bao gồm nhiều partition nhỏ, mỗi partition này đại diện cho 1 phần dữ liệu
+    phân tán. Khái niệm partition là logical, tức là 1 node xử lý có thể chứa nhiều hơn 1 RDD partition. Theo mặc định, dữ liệu các
+    partitions sẽ lưu trên memory.
+    - VD cần xử lý 1TB dữ liệu, nếu lưu hết trên mem tính ra thì cũng khá tốn kém, nếu có 1tb ram thì tốt quá nhưng k cần thiết. Với
+    việc chia nhỏ dữ liệu thành các partition và cơ chế lazy evaluation của Spark có thể chỉ cần vài chục GB ram và 1 ctrinh thiết kế tốt
+    để xử lý 1tb data, chỉ là sẽ chậm hơn có nhiều ram thôi.
+
+
+4. Lazy evaluation:
+    - Việc xử lý dữ liệu, nhìn rộng ra chính là việc biến đổi từ tập dữ liệu này sang tập dữ liệu khác. Với spark là biến đổi từ RDD này sang
+    RDD khác.
+    - Làm việc với RDD, spark có 2 loại operations là Transformation và Actions.
+    - Biến đổi từ RDD này sang RDD khác là 1 transformation, như việc biến đổi tập web log ban đầu sang tập web log chỉ chứa log gọi qua app là
+    1 transformation. 1 Số transformation:
+        - map(func): rdd mới được tạo thành bằng cách áp dụng func lên tất cả các record trong rdd.
+        - filter(func: Boolean): rdd mới được tạo thành bằng cách áp dụng func lên tất cả các bản ghi trên rdd ban đầu và chỉ lấy những bản ghi
+        mà func trả về true.
+    - Sau tất cả các phép transform, khi muốn tương tác với kết quả cuối cùng (vd xem kết quả, collect kết quả, ghi kết quả..) ta gọi 1 action.
+
+    Có thể kể đến 1 số Action như:
+    take(n): lấy n bản ghi từ RDD về driver
+    collect(): lấy tất cả RDD về driver
+    saveAsTextFile(“path”): ghi dữ liệu RDD ra file
+    count(): đến số bản ghi của RDD
+
+    - Khi thực thi, việc gọi các transformations, spark sẽ không ngay lập tức thực thi các tính toán mà sẽ lưu lại thành 1 lineage, tức là tập
+    hợp các biến đổi từ RDD này thành RDD khác qua mỗi transformation. Khi có 1 action được gọi, spark lúc này mới thưucj sự thực hiện các biến
+    đổi để trả ra kết quả.
+    - Tại sao cứ phải chờ rồi mới thực thi mà không gọi đến đâu làm đến đấy như truyền thống:
+    . Quay lại ví dụ lọc web log ban đầu, nếu gọi đến đâu chạy đến đấy thì sau bước đầu tiên, ứng dụng cần load sẵn 1tb ram vào Mem, sẵn sàng
+    thực hiện bước tiếp theo. Tuy nhiên, nếu lazy, Driver sẽ có "cái nhìn" toàn cảnh từ đầu đến cuối về output đầu ra, lúc này Driver sẽ sinh
+    các task đọc từng phần nhỏ của 1TB, thực hiện lọc trên tập dữ liệu nhỏ và giữ lại kết quả count bản ghi là log app, load dần cho đến khi hết
+    1tb thì sum tổng các phần nhỏ lại sẽ ra được phần lớn
+    => Chỉ cần lượng ram nhỏ nhưng vẫn có thể xử lý được dữ liệu lớn gấp nhiều lần.
+
+
+
+
+
+PHẦN 3: Spark SQL với DataFrame và DataSet:
+
+1. SparkSQL:
+    - Khi thực thi, sparkSQL vẫn sẽ gọi xuống lớp Core bên dưới, sử dụng RDD để tính toán.
+    - 1 số đặc điểm quan trọng của SparkSQL như sau:
+        . Được xây dựng phía trên tầng SparkCore, thừa hưởng tất cả các tính năng mà RDD có.
+        . Làm việc với tập dữ liệu là DataSet hoặc DataFrame (tập dữ liệu phân tán có cấu trúc).
+        . Hiệu năng cao, khả năng mở rộng và chịu lỗi tốt.
+        . Tương thích với các thành phần khác trong tổng thể SparkFramework (như streaming, mllib, graphX)
+        . Bao gồm 2 thành phần là DataSet API và CatalystOptimizer.
+
+2. SparkSQL performance:
+    - Trong việc biến đổi và tổng hợp dữ liệu, Spark SQL với DataFrame luôn có hiệu năng cao hơn rất nhiều so với sử dụng RDD.
+    - So với người anh là RDD trên cùng 1 công việc tổng hợp, SparkSQL với DF cho thời gian chạy nhanh hơn ít nhất 2 lần. Nếu chạy qua RDD python
+    là tới gần 5 lần.
+
+
+3. DataFrame:
+    - Cốt lõi của SparkSQL chính là DataFrame và các API tương tác.
+    - Hiểu đơn giản DF giống như 1 bảng trong hệ csdl quan hệ. Có các trường, được định sẵn kiểu dữ liệu, và tập hợp các bản ghi.
+    - Tuy nhiên 1 DF có thể đại diện cho lượng dữ liệu lớn hơn rất nhiều so với các bảng trong DB.
+    - Các đặc điểm bao gồm:
+        . immutable: tính bất biến, dữ liệu của 1 DF sau khi tạo ra sẽ không thay đổi, nếu muốn chỉnh sửa ta cần tạo ra DF mới từ
+        DF ban đầu, thông qua DF api.
+        . rows: là đối tượng đại diện cho 1 bản ghi dữ liệu. 1 DF = tập các row phân tán.
+        . set of columns has name and an associated type: Ý nói về việc dữ liệu của DF là có cấu trúc, gồm tên là kiểu dữ liệu.
+    -SparkSQL hỗ trợ rất nhiều nguồn dữ liệu như file, DB.. Với DataFrameReader, bạn có thể dễ dàng đọc dữ liệu từ nhiều nguồn,
+    nhiều định dạng để tạo ra 1 DataFrame, từ đó có thể sử dụng các API của SparkSQL tương tác với chúng.
+
+
+4. DataFrame or DataSet:
+    - DataFrame được giới thiệu vào năm 2013 và DataSet là 2015. Sau khi tồn tại được 1 năm thì 2016 spark 2.0 ra mắt và gộp DF và DS lại, chỉ còn
+    duy nhất DS.
+    - Cả DF và DS đều là tập dữ liệu trong SparkSQL, tuy nhiên có điểm khác biệt là các bản ghi trong DF được fix luôn là đối tượng row, còn DS thì có
+    tuỳ chỉnh được kiểu dữ liệu của bản ghi thông qua định nghĩa case class.
+    - 1 nhược điểm của DF là do kiểu dữ liệu đc fix là row và truy cập dữ liệu trong DF thông qua row name nên nếu có sai sót trong việc truyền tên cột,
+    trình biên dịch sẽ không thể phát hiện ra lỗi mà khi thực thi mới có exception. DS có thể khắc phục nhược điểm này do có sẵn định nghĩa của 1 bản ghi,
+    dữ liệu trong DS truy cập thông qua member của case class chứ kphai truyền tên như DF.
+    (đối với DF thì k thể detect lỗi khi mình truy suất dữ liệu 1 cột bị sai tên, còn đối với DS thì được khởi taọ như case class với thông tin mỗi cột là
+    1 thuộc tính được định nghĩa sẵn kiểu dữ liệu, khi đấy sẽ detect được lỗi khi truy vấn sai tên cột tại compiletime).
+
+
+
+
+
+
+
+
+
